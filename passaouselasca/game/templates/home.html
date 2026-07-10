@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passa ou Se Lasca — Início</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#fff7ed; --surface:#fff;
+            --primary:#f97316; --primary-light:rgba(249,115,22,.08); --primary-mid:rgba(249,115,22,.15);
+            --secondary:#22c55e; --gradient:var(--primary);
+            --text:#1e1b4b; --text-muted:#6b7280; --border:#e5e7eb;
+            --shadow:0 4px 20px rgba(249,115,22,.1); --radius:14px;
+        }
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+        /* NAV */
+        nav{
+            position:sticky;top:0;z-index:100;
+            display:flex;align-items:center;justify-content:space-between;
+            padding:0 40px;height:66px;
+            background:rgba(255,255,255,.9);backdrop-filter:blur(10px);
+            border-bottom:1px solid var(--border);
+        }
+        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+        .nav-logo-icon{width:34px;height:34px;background:var(--gradient);border-radius:9px;
+            display:flex;align-items:center;justify-content:center;font-size:16px}
+        .nav-logo strong{font-size:17px;font-weight:800;color:var(--primary)}
+        .nav-right{display:flex;align-items:center;gap:10px}
+        .nav-avatar{width:32px;height:32px;border-radius:50%;background:var(--gradient);
+            display:flex;align-items:center;justify-content:center;
+            font-size:13px;font-weight:700;color:white}
+        .nav-username{font-size:13px;font-weight:600;color:var(--text-muted)}
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;
+            font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;
+            text-decoration:none;border:none;transition:all .2s}
+        .btn-outline{background:white;color:var(--primary);border:1.5px solid var(--primary)}
+        .btn-outline:hover{background:var(--primary-light)}
+        .btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
+        .btn-ghost:hover{border-color:#ef4444;color:#ef4444}
+        .btn-primary{background:var(--gradient);color:white;box-shadow:0 3px 12px rgba(249,115,22,.3)}
+        .btn-primary:hover{opacity:.92;transform:translateY(-1px)}
+
+        /* MAIN */
+        main{max-width:1080px;margin:0 auto;padding:56px 24px}
+
+        /* MESSAGES */
+        .msg{padding:11px 14px;border-radius:9px;font-size:14px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+        .msg-success{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:#059669}
+        .msg-error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#ef4444}
+
+        /* HERO */
+        .hero{margin-bottom:52px}
+        .hero-badge{
+            display:inline-flex;align-items:center;gap:6px;
+            padding:5px 14px;border-radius:999px;font-size:13px;font-weight:600;
+            color:var(--primary);background:var(--primary-light);
+            border:1px solid var(--primary-mid);margin-bottom:18px
+        }
+        .hero h1{font-size:clamp(32px,4.5vw,52px);font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:14px}
+        .hero h1 .hi{color:var(--primary)}
+        .hero p{font-size:17px;color:var(--text-muted);max-width:480px;line-height:1.6}
+
+        /* SECTION */
+        .section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+        .section-hd h2{font-size:20px;font-weight:700}
+        .count-badge{font-size:12px;color:var(--text-muted);background:white;
+            border:1px solid var(--border);padding:3px 12px;border-radius:999px}
+
+        /* GRID */
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+
+        .deck-card{
+            background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);
+            padding:22px;text-decoration:none;color:inherit;display:block;
+            transition:transform .2s,border-color .2s,box-shadow .2s;position:relative;overflow:hidden
+        }
+        .deck-card::after{
+            content:'';position:absolute;inset:0;
+            background:var(--gradient);opacity:0;transition:opacity .2s;pointer-events:none;
+            border-radius:var(--radius)
+        }
+        .deck-card:hover{transform:translateY(-4px);border-color:var(--primary);box-shadow:var(--shadow)}
+        .deck-card:hover::after{opacity:.03}
+
+        .deck-icon{font-size:28px;margin-bottom:12px}
+        .deck-title{font-size:17px;font-weight:700;margin-bottom:6px;color:var(--text)}
+        .deck-meta{font-size:12px;color:var(--text-muted)}
+        .deck-play{
+            display:inline-flex;align-items:center;gap:6px;margin-top:18px;
+            padding:9px 18px;background:var(--gradient);border-radius:8px;
+            font-size:13px;font-weight:700;color:white;
+            box-shadow:0 3px 10px rgba(249,115,22,.25)
+        }
+
+        /* EMPTY */
+        .empty{text-align:center;padding:80px 20px;background:white;
+            border:1.5px dashed var(--border);border-radius:var(--radius)}
+        .empty-icon{font-size:56px;margin-bottom:18px}
+        .empty h3{font-size:20px;font-weight:700;margin-bottom:8px}
+        .empty p{color:var(--text-muted);margin-bottom:24px}
+    </style>
+</head>
+<body>
+<nav>
+    <a href="{% url 'home' %}" class="nav-logo">
+        <div class="nav-logo-icon">🃏</div>
+        <strong>Passa ou Se Lasca</strong>
+    </a>
+    <div class="nav-right">
+        <div class="nav-avatar">{{ request.user.username|first|upper }}</div>
+        <span class="nav-username">{{ request.user.username }}</span>
+        <a href="{% url 'baralhos' %}" class="btn btn-outline">Meus Baralhos</a>
+        <a href="{% url 'logout' %}" class="btn btn-ghost">Sair</a>
+    </div>
+</nav>
+
+<main>
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="msg {% if msg.level == 25 %}msg-success{% else %}msg-error{% endif %}">
+                {% if msg.level == 25 %}✅{% else %}⚠️{% endif %} {{ msg }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="hero">
+        <div class="hero-badge">👋 Olá, {{ request.user.username }}!</div>
+        <h1>Pronto para uma<br><span class="hi">nova rodada?</span></h1>
+        <p>Selecione um baralho e comece a partida com suas equipes.</p>
+    </div>
+
+    <div class="section-hd">
+        <h2>Seus Baralhos</h2>
+        <span class="count-badge">{{ meus_baralhos.count }} baralho{% if meus_baralhos.count != 1 %}s{% endif %}</span>
+    </div>
+
+    {% if meus_baralhos %}
+    <div class="grid">
+        {% for b in meus_baralhos %}
+        <a href="{% url 'jogar' b.id %}" class="deck-card">
+            <div class="deck-icon">🃏</div>
+            <div class="deck-title">{{ b.titulo }}</div>
+            <div class="deck-meta">📋 {{ b.cartas.count }} carta{% if b.cartas.count != 1 %}s{% endif %}</div>
+            <div class="deck-play">▶ Jogar Agora</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+        <div class="empty-icon">🃏</div>
+        <h3>Nenhum baralho ainda</h3>
+        <p>Crie seu primeiro baralho com perguntas e respostas.</p>
+        <a href="{% url 'criar_baralho' %}" class="btn btn-primary" style="font-size:15px;padding:12px 28px">✨ Criar Baralho</a>
+    </div>
+    {% endif %}
+</main>
+</body>
+</html>

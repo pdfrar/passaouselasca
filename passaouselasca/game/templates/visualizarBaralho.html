@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ baralho.titulo }} — Visão Geral</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#fff7ed;--surface:#fff;
+            --primary:#f97316;--primary-light:rgba(249,115,22,.08);--primary-mid:rgba(249,115,22,.15);
+            --secondary:#22c55e;
+            --text:#1e1b4b;--text-muted:#6b7280;--border:#e5e7eb;
+            --shadow:0 8px 30px rgba(249,115,22,.12);
+            --radius:16px;
+        }
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+        /* NAV */
+        nav{
+            position:sticky;top:0;z-index:100;display:flex;align-items:center;
+            justify-content:space-between;padding:0 40px;height:72px;
+            background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+            border-bottom:1px solid var(--border)
+        }
+        .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+        .nav-logo-icon{width:38px;height:38px;background:var(--primary);border-radius:10px;
+            display:flex;align-items:center;justify-content:center;font-size:18px}
+        .nav-logo strong{font-size:18px;font-weight:800;color:var(--primary)}
+        
+        .btn{
+            display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;
+            font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;
+            text-decoration:none;border:none;transition:all .2s
+        }
+        .btn-ghost{background:transparent;color:var(--text-muted);border:1.5px solid var(--border)}
+        .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+        .btn-primary{background:var(--primary);color:white;box-shadow:0 4px 14px rgba(249,115,22,.3)}
+        .btn-primary:hover{opacity:.9;transform:translateY(-2px)}
+
+        /* MAIN */
+        main{max-width:1200px;margin:0 auto;padding:60px 24px}
+
+        /* MOSAICO */
+        .mosaico{
+            display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+            gap:24px;
+            align-items:start
+        }
+
+        /* ── CAPA ──────────────────────────────── */
+        .card-capa{
+            background:var(--primary);
+            border-radius:var(--radius);
+            padding:32px;
+            color:white;
+            display:flex;flex-direction:column;
+            min-height:360px;
+            box-shadow:var(--shadow);
+            position:relative;overflow:hidden
+        }
+        .card-capa::before{
+            content:'🃏';position:absolute;bottom:-20px;right:-10px;
+            font-size:140px;opacity:.1;line-height:1
+        }
+        .capa-titulo{font-size:26px;font-weight:900;letter-spacing:-.5px;margin-bottom:8px;line-height:1.2;position:relative;z-index:2}
+        .capa-meta{font-size:15px;opacity:.8;margin-bottom:24px;position:relative;z-index:2}
+        
+        .capa-count{
+            display:inline-flex;align-items:center;gap:6px;
+            padding:6px 14px;border-radius:999px;
+            background:rgba(255,255,255,.2);font-size:14px;font-weight:700;
+            margin-bottom:auto;width:fit-content;position:relative;z-index:2
+        }
+
+        /* Botões da Capa (Todos com texto claro agora) */
+        .capa-btns{display:flex;flex-direction:column;gap:10px;margin-top:32px;position:relative;z-index:2}
+        
+        .capa-btn-play{
+            display:flex;align-items:center;justify-content:center;gap:10px;
+            padding:14px;border-radius:12px;background:white;color:var(--primary);
+            font-family:'Inter',sans-serif;font-size:16px;font-weight:800;
+            text-decoration:none;border:none;cursor:pointer;transition:all .2s;
+            box-shadow:0 4px 12px rgba(0,0,0,.1)
+        }
+        .capa-btn-play:hover{background:rgba(255,255,255,.9);transform:translateY(-2px)}
+        
+        .capa-btn-outline{
+            display:flex;align-items:center;justify-content:center;gap:10px;
+            padding:12px;border-radius:10px;background:rgba(255,255,255,.15);color:white;
+            font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
+            border:1px solid rgba(255,255,255,.3);cursor:pointer;transition:all .2s;
+            text-decoration:none
+        }
+        .capa-btn-outline:hover{background:rgba(255,255,255,.25)}
+
+        .capa-btn-outline form{margin:0;display:contents}
+        .capa-btn-outline button{background:none;border:none;color:inherit;font:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;width:100%}
+
+        /* ── CARD REGULAR ──────────────────────── */
+        .card-item{
+            background:var(--surface);border:1.5px solid var(--border);
+            border-radius:var(--radius);overflow:hidden;
+            min-height:340px;display:flex;flex-direction:column;
+            transition:border-color .2s,box-shadow .2s;
+            position:relative
+        }
+        .card-item:hover{border-color:var(--primary);box-shadow:0 8px 24px rgba(249,115,22,.08)}
+
+        /* frente */
+        .card-front{flex:1;display:flex;flex-direction:column}
+        .card-img-wrap{flex:0 0 160px;overflow:hidden;background:var(--bg);
+            display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border)}
+        .card-img-wrap img{width:100%;height:100%;object-fit:cover}
+        .card-img-empty{width:100%;height:100%;display:flex;align-items:center;
+            justify-content:center;font-size:42px;color:var(--border)}
+            
+        .card-content{padding:20px;flex:1;display:flex;flex-direction:column}
+        .card-pergunta{font-size:16px;font-weight:700;color:var(--text);line-height:1.4;flex:1;margin-bottom:16px}
+        
+        .card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
+        .card-pontos{font-size:13px;font-weight:800;color:var(--primary);
+            background:var(--primary-light);padding:4px 10px;border-radius:8px}
+            
+        .btn-flip{
+            background:var(--bg);border:1px solid var(--border);border-radius:8px;
+            padding:6px 12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
+            color:var(--text-muted);cursor:pointer;transition:all .2s
+        }
+        .btn-flip:hover{border-color:var(--primary);color:var(--primary);background:white}
+
+        /* verso */
+        .card-back{
+            display:none;flex:1;
+            flex-direction:column;align-items:center;justify-content:center;
+            padding:24px;text-align:center;
+            background:var(--bg);
+        }
+        .card-back-label{font-size:12px;font-weight:800;text-transform:uppercase;
+            letter-spacing:1px;color:var(--secondary);margin-bottom:12px}
+        .card-resposta{font-size:18px;font-weight:800;color:var(--text);line-height:1.4;margin-bottom:24px}
+
+        /* Quando mostrando resposta */
+        .card-item.show-answer .card-front{display:none}
+        .card-item.show-answer .card-back{display:flex}
+
+        /* Toast */
+        .toast{
+            position:fixed;bottom:32px;right:32px;z-index:300;
+            background:var(--text);color:white;
+            padding:14px 24px;border-radius:12px;font-size:15px;font-weight:600;
+            opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none
+        }
+        .toast.show{opacity:1;transform:translateY(0)}
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="{% url 'baralhos' %}" class="nav-logo">
+        <div class="nav-logo-icon">🃏</div>
+        <strong>Passa ou Se Lasca</strong>
+    </a>
+    <div style="display:flex;gap:12px">
+        <a href="{% url 'baralhos' %}" class="btn btn-ghost">← Voltar</a>
+        <a href="{% url 'jogar' baralho.id %}" class="btn btn-primary">▶ Iniciar Partida</a>
+    </div>
+</nav>
+
+<main>
+    <div class="mosaico">
+
+        <!-- ── Capa ───────────────────────────────── -->
+        <div class="card-capa">
+            <div class="capa-titulo">{{ baralho.titulo }}</div>
+            <div class="capa-meta">Criado por {{ baralho.professor.username }}</div>
+            <div class="capa-count">🃏 {{ cartas.count }} carta{% if cartas.count != 1 %}s{% endif %}</div>
+
+            <div class="capa-btns">
+                <a href="{% url 'jogar' baralho.id %}" class="capa-btn-play">▶ Jogar Partida</a>
+                
+                <button class="capa-btn-outline" id="btn-toggle" onclick="toggleGlobal()">
+                    👁 Mostrar Todas as Respostas
+                </button>
+                
+                {% if is_owner %}
+                <a href="{% url 'editar_baralho' baralho.id %}" class="capa-btn-outline">
+                    ✏️ Adicionar/Editar Cartas
+                </a>
+                {% endif %}
+                
+                <div class="capa-btn-outline">
+                    <form method="POST" action="{% url 'copiar_baralho' baralho.id %}">
+                        {% csrf_token %}
+                        <button type="submit">📋 Duplicar Baralho</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Cartas ────────────────────────────── -->
+        {% for carta in cartas %}
+        <div class="card-item" id="card-{{ carta.id }}">
+            <div class="card-front">
+                <div class="card-img-wrap">
+                    {% if carta.imagem %}
+                        <img src="{{ carta.imagem.url }}" alt="Imagem da carta">
+                    {% else %}
+                        <div class="card-img-empty">🃏</div>
+                    {% endif %}
+                </div>
+                <div class="card-content">
+                    <p class="card-pergunta">{{ carta.pergunta }}</p>
+                    <div class="card-bottom">
+                        <span class="card-pontos">{{ carta.pontos }} pts</span>
+                        <button class="btn-flip" onclick="toggleCard(this.closest('.card-item'))">Ver Resposta</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-back">
+                <div class="card-back-label">Resposta</div>
+                <div class="card-resposta">{{ carta.resposta }}</div>
+                <button class="btn-flip" style="background:white" onclick="toggleCard(this.closest('.card-item'))">← Voltar</button>
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column:1/-1;text-align:center;padding:80px;border:2px dashed var(--border);border-radius:var(--radius)">
+            <div style="font-size:54px;margin-bottom:20px">📭</div>
+            <p style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:12px">Nenhuma carta neste baralho ainda.</p>
+            {% if is_owner %}
+            <a href="{% url 'editar_baralho' baralho.id %}" class="btn btn-primary" style="margin-top:20px;font-size:16px;padding:14px 32px">✨ Adicionar Primeira Carta</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+    </div>
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+    let mostrandoRespostas = false;
+
+    function toggleGlobal() {
+        mostrandoRespostas = !mostrandoRespostas;
+        document.querySelectorAll('.card-item').forEach(c => {
+            c.classList.toggle('show-answer', mostrandoRespostas);
+        });
+        document.getElementById('btn-toggle').innerHTML =
+            mostrandoRespostas ? '🙈 Ocultar Respostas' : '👁 Mostrar Todas as Respostas';
+    }
+
+    function toggleCard(card) {
+        card.classList.toggle('show-answer');
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+</script>
+</body>
+</html>

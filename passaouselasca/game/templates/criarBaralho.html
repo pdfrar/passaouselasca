@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if baralho %}Editar Baralho{% else %}Criar Baralho{% endif %} — Passa ou Se Lasca</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#fff7ed;--surface:#fff;
+            --primary:#f97316;--primary-light:rgba(249,115,22,.08);--primary-mid:rgba(249,115,22,.15);
+            --secondary:#22c55e;
+            --text:#1e1b4b;--text-muted:#6b7280;--border:#e5e7eb;
+            --danger:#ef4444;--danger-light:rgba(239,68,68,.08);
+            --radius:16px;--shadow:0 8px 30px rgba(249,115,22,.12);
+        }
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:120px}
+
+        /* NAV */
+        nav{
+            position:sticky;top:0;z-index:100;
+            display:flex;align-items:center;justify-content:space-between;
+            padding:0 40px;height:72px;
+            background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+            border-bottom:1px solid var(--border)
+        }
+        .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+        .nav-logo-icon{width:38px;height:38px;background:var(--primary);border-radius:10px;
+            display:flex;align-items:center;justify-content:center;font-size:18px}
+        .nav-logo strong{font-size:18px;font-weight:800;color:var(--primary)}
+        .nav-right{display:flex;align-items:center;gap:12px}
+
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:10px;
+            font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;
+            text-decoration:none;border:none;transition:all .2s}
+        .btn-ghost{background:transparent;color:var(--text-muted);border:1.5px solid var(--border)}
+        .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+        .btn-primary{background:var(--primary);color:white;box-shadow:0 4px 14px rgba(249,115,22,.3)}
+        .btn-primary:hover{opacity:.9;transform:translateY(-2px)}
+        .btn-secondary{background:var(--secondary);color:white;box-shadow:0 4px 14px rgba(34,197,94,.3)}
+        .btn-secondary:hover{opacity:.9;transform:translateY(-2px)}
+
+        main{max-width:860px;margin:40px auto;padding:0 24px}
+
+        /* Mensagens */
+        .msg{padding:14px 20px;border-radius:12px;font-size:15px;font-weight:600;margin-bottom:24px;display:flex;align-items:center;gap:10px}
+        .msg-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#15803d}
+        .msg-error{background:var(--danger-light);border:1px solid rgba(239,68,68,.3);color:var(--danger)}
+
+        /* Form Titulo */
+        .title-section{background:var(--surface);padding:32px;border-radius:var(--radius);
+            border:1px solid var(--border);margin-bottom:32px;box-shadow:0 4px 20px rgba(0,0,0,.03)}
+        .input-group{display:flex;flex-direction:column;gap:10px}
+        .input-label{font-size:15px;font-weight:700;color:var(--text)}
+        .input-title{
+            font-size:24px;font-weight:800;padding:16px 20px;border-radius:12px;
+            border:2px solid var(--border);background:var(--bg);color:var(--text);
+            font-family:'Inter',sans-serif;transition:all .2s;outline:none
+        }
+        .input-title:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 4px var(--primary-light)}
+
+        /* Painel Nova Carta (Form mais limpo) */
+        .add-card-panel{
+            background:var(--surface);padding:36px;border-radius:var(--radius);
+            border:2px dashed var(--border);margin-bottom:40px;
+            transition:border-color .2s
+        }
+        .add-card-panel:focus-within{border-color:var(--primary);border-style:solid}
+        .add-panel-title{font-size:20px;font-weight:800;margin-bottom:24px;display:flex;align-items:center;gap:10px}
+        
+        .form-grid{display:grid;grid-template-columns:1fr;gap:20px}
+        .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+        
+        .field-group{display:flex;flex-direction:column;gap:8px}
+        .field-label{font-size:14px;font-weight:700;color:var(--text)}
+        .field-hint{font-size:13px;font-weight:500;color:var(--text-muted);margin-bottom:4px}
+        
+        textarea, input[type="number"], input[type="file"]{
+            padding:14px 16px;border-radius:10px;border:1.5px solid var(--border);
+            background:var(--bg);font-family:'Inter',sans-serif;font-size:15px;
+            color:var(--text);outline:none;transition:all .2s
+        }
+        textarea{resize:vertical;min-height:90px}
+        textarea:focus, input[type="number"]:focus{border-color:var(--primary);background:white}
+        
+        .file-upload{
+            position:relative;display:flex;align-items:center;justify-content:center;
+            border:1.5px dashed var(--border);border-radius:10px;background:var(--bg);
+            padding:16px;cursor:pointer;transition:all .2s;text-align:center
+        }
+        .file-upload:hover{border-color:var(--primary);background:var(--primary-light)}
+        .file-upload input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+        .file-upload-text{font-size:14px;font-weight:600;color:var(--text-muted)}
+        .file-upload-text strong{color:var(--primary)}
+
+        /* Lista de Cartas Existentes */
+        .cards-list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+        .cards-list-header h2{font-size:24px;font-weight:800}
+        .cards-count{background:var(--primary-light);color:var(--primary);padding:6px 14px;border-radius:999px;font-size:14px;font-weight:700}
+        
+        .cards-grid{display:flex;flex-direction:column;gap:16px}
+        
+        .list-card{
+            display:flex;background:var(--surface);border:1px solid var(--border);
+            border-radius:12px;overflow:hidden;transition:all .2s
+        }
+        .list-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.04)}
+        
+        .list-card-img{width:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border)}
+        .list-card-img img{width:100%;height:100%;object-fit:cover}
+        .list-card-empty{font-size:32px;color:var(--border)}
+        
+        .list-card-content{flex:1;padding:20px;display:flex;flex-direction:column;justify-content:center}
+        .list-card-q{font-size:16px;font-weight:700;margin-bottom:6px;line-height:1.4}
+        .list-card-a{font-size:14px;color:var(--text-muted);display:flex;align-items:center;gap:6px}
+        .list-card-a::before{content:'R:';font-weight:700;color:var(--secondary)}
+        
+        .list-card-actions{
+            display:flex;flex-direction:column;justify-content:center;gap:8px;
+            padding:20px;background:var(--bg);border-left:1px solid var(--border)
+        }
+        .list-pts{font-size:14px;font-weight:800;color:var(--primary);text-align:center;margin-bottom:8px}
+        .btn-icon{
+            padding:8px;border-radius:8px;border:1px solid var(--border);
+            background:white;color:var(--text-muted);cursor:pointer;
+            display:flex;align-items:center;justify-content:center;transition:all .2s
+        }
+        .btn-icon:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-light)}
+
+        /* Fixed Bottom Bar */
+        .bottom-bar{
+            position:fixed;bottom:0;left:0;right:0;z-index:90;
+            background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+            border-top:1px solid var(--border);padding:20px 40px;
+            display:flex;justify-content:flex-end;box-shadow:0 -4px 24px rgba(0,0,0,.05)
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="{% url 'baralhos' %}" class="nav-logo">
+        <div class="nav-logo-icon">🃏</div>
+        <strong>Passa ou Se Lasca</strong>
+    </a>
+    <div class="nav-right">
+        <a href="{% url 'baralhos' %}" class="btn btn-ghost">← Voltar</a>
+    </div>
+</nav>
+
+<main>
+    {% if messages %}{% for msg in messages %}
+        <div class="msg {% if msg.level == 25 %}msg-success{% else %}msg-error{% endif %}">
+            {% if msg.level == 25 %}✅{% else %}⚠️{% endif %} {{ msg }}
+        </div>
+    {% endfor %}{% endif %}
+
+    <!-- Formulário do Baralho Principal -->
+    <form method="POST" enctype="multipart/form-data" id="deck-form">
+        {% csrf_token %}
+        <input type="hidden" name="baralho_id" value="{{ baralho.id|default:'' }}">
+        <input type="hidden" name="acao" value="salvar_baralho">
+
+        <div class="title-section">
+            <div class="input-group">
+                <label for="titulo" class="input-label">Título do Baralho</label>
+                <input type="text" id="titulo" name="titulo" class="input-title" 
+                       placeholder="Ex: Revisão de História (Séc. XX)" 
+                       value="{{ baralho.titulo|default:'' }}" required>
+            </div>
+        </div>
+    </form>
+
+    {% if baralho %}
+    <!-- Painel de Adicionar Carta -->
+    <div class="add-card-panel">
+        <div class="add-panel-title">✨ Adicionar Nova Carta</div>
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="adicionar_carta">
+            
+            <div class="form-grid">
+                <div class="field-group">
+                    <label class="field-label" for="pergunta">Pergunta</label>
+                    <div class="field-hint">A pergunta que será feita à equipe.</div>
+                    <textarea id="pergunta" name="pergunta" required placeholder="Digite a pergunta aqui..."></textarea>
+                </div>
+                
+                <div class="field-group">
+                    <label class="field-label" for="resposta">Resposta Esperada</label>
+                    <div class="field-hint">A resposta correta para pontuar.</div>
+                    <textarea id="resposta" name="resposta" required placeholder="Digite a resposta exata ou tópicos principais..."></textarea>
+                </div>
+                
+                <div class="form-row-2">
+                    <div class="field-group">
+                        <label class="field-label" for="pontos">Pontuação</label>
+                        <div class="field-hint">Quantos pontos essa carta vale.</div>
+                        <input type="number" id="pontos" name="pontos" value="100" min="5" step="5" required>
+                    </div>
+                    
+                    <div class="field-group">
+                        <label class="field-label">Imagem (Opcional)</label>
+                        <div class="field-hint">Adicione um contexto visual.</div>
+                        <div class="file-upload">
+                            <input type="file" name="imagem" accept="image/*" onchange="updName(this)">
+                            <div class="file-upload-text" id="file-name">📎 <strong>Clique</strong> ou arraste uma imagem</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="margin-top:10px;justify-content:center;padding:16px;font-size:16px">
+                    ➕ Salvar Carta no Baralho
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Lista de Cartas -->
+    <div class="cards-list-header">
+        <h2>Cartas Deste Baralho</h2>
+        <div class="cards-count">{{ cartas.count }} carta{% if cartas.count != 1 %}s{% endif %} adicionadas</div>
+    </div>
+
+    <div class="cards-grid">
+        {% for carta in cartas %}
+        <div class="list-card">
+            <div class="list-card-img">
+                {% if carta.imagem %}
+                    <img src="{{ carta.imagem.url }}" alt="Img">
+                {% else %}
+                    <div class="list-card-empty">🃏</div>
+                {% endif %}
+            </div>
+            
+            <div class="list-card-content">
+                <div class="list-card-q">{{ carta.pergunta }}</div>
+                <div class="list-card-a">{{ carta.resposta }}</div>
+            </div>
+            
+            <div class="list-card-actions">
+                <div class="list-pts">{{ carta.pontos }} pts</div>
+                <form method="POST" onsubmit="return confirm('Excluir esta carta definitivamente?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="acao" value="deletar_carta">
+                    <input type="hidden" name="carta_id" value="{{ carta.id }}">
+                    <button type="submit" class="btn-icon" title="Excluir Carta">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div style="text-align:center;padding:60px 20px;border:2px dashed var(--border);border-radius:var(--radius)">
+            <div style="font-size:40px;margin-bottom:12px">📭</div>
+            <p style="font-size:16px;font-weight:600;color:var(--text-muted)">Nenhuma carta adicionada ainda.<br>Use o painel acima para criar a primeira!</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div style="text-align:center;padding:80px 20px">
+        <div style="font-size:64px;margin-bottom:24px">☝️</div>
+        <h3 style="font-size:24px;font-weight:800;margin-bottom:12px">Dê um nome ao baralho</h3>
+        <p style="color:var(--text-muted);font-size:16px;max-width:400px;margin:0 auto">
+            Primeiro salve o título do seu novo baralho para poder adicionar cartas nele.
+        </p>
+    </div>
+    {% endif %}
+</main>
+
+<div class="bottom-bar">
+    <button type="button" class="btn btn-secondary" onclick="document.getElementById('deck-form').submit()" style="padding:14px 28px;font-size:16px">
+        {% if baralho %}💾 Salvar e Concluir{% else %}✅ Iniciar Baralho{% endif %}
+    </button>
+</div>
+
+<script>
+    function updName(input){
+        const txt = document.getElementById('file-name');
+        if(input.files && input.files[0]){
+            txt.textContent = '📎 ' + input.files[0].name;
+            txt.style.color = 'var(--text)';
+        }else{
+            txt.innerHTML = '📎 <strong>Clique</strong> ou arraste uma imagem';
+            txt.style.color = 'var(--text-muted)';
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passa ou Se Lasca — Entrar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #fff7ed;
+            --surface: #ffffff;
+            --primary: #f97316;
+            --primary-light: rgba(249,115,22,0.08);
+            --primary-mid: rgba(249,115,22,0.15);
+            --secondary: #22c55e;
+            --gradient:var(--primary);
+            --text: #1e1b4b;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+            --danger-light: rgba(239,68,68,0.08);
+            --shadow: 0 4px 24px rgba(249,115,22,0.12);
+            --radius: 14px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: -30%; right: -15%;
+            width: 55vw; height: 55vw;
+            background: transparent 0%, transparent 65%);
+            pointer-events: none;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -25%; left: -10%;
+            width: 45vw; height: 45vw;
+            background: transparent 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        .container { width: 100%; max-width: 440px; padding: 24px; position: relative; z-index: 1; }
+
+        .logo { text-align: center; margin-bottom: 32px; }
+        .logo-icon {
+            width: 68px; height: 68px;
+            background: var(--gradient);
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; margin: 0 auto 14px;
+            box-shadow: 0 8px 24px rgba(249,115,22,0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .logo h1 {
+            font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.5px;
+        }
+        .logo p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 32px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 28px;
+        }
+        .tab-btn {
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+            font-size: 14px; font-weight: 600;
+            color: var(--text-muted); background: transparent;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+
+        .form-group { margin-bottom: 16px; }
+        label {
+            display: block; font-size: 12px; font-weight: 600;
+            color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 0.8px; margin-bottom: 7px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%; padding: 12px 14px;
+            background: var(--bg); border: 1.5px solid var(--border);
+            border-radius: 10px; color: var(--text);
+            font-family: 'Inter', sans-serif; font-size: 15px; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+            background: white;
+        }
+        input::placeholder { color: #c4c4d0; }
+
+        .btn-submit {
+            width: 100%; padding: 13px;
+            background: var(--gradient); border: none; border-radius: 10px;
+            color: white; font-family: 'Inter', sans-serif;
+            font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px;
+            transition: opacity 0.2s, transform 0.1s;
+            box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+        }
+        .btn-submit:hover { opacity: 0.92; transform: translateY(-1px); }
+
+        .alert {
+            display: flex; align-items: center; gap: 8px;
+            padding: 11px 14px; border-radius: 9px;
+            font-size: 13.5px; font-weight: 500; margin-bottom: 18px;
+            background: var(--danger-light);
+            border: 1px solid rgba(239,68,68,0.2);
+            color: var(--danger);
+        }
+
+        .divider {
+            text-align: center; color: var(--text-muted); font-size: 13px;
+            margin: 20px 0; position: relative;
+        }
+        .divider::before, .divider::after {
+            content: ''; position: absolute; top: 50%;
+            width: 38%; height: 1px; background: var(--border);
+        }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .btn-secondary {
+            width: 100%; padding: 11px; background: white;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            color: var(--text-muted); font-family: 'Inter', sans-serif;
+            font-size: 14px; cursor: pointer; transition: border-color 0.2s, color 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo">
+        <div class="logo-icon">🃏</div>
+        <h1>Passa ou Se Lasca</h1>
+        <p>O quiz definitivo para sua aula</p>
+    </div>
+
+    <div class="card">
+        {% if messages %}{% for msg in messages %}
+            <div class="alert">⚠️ {{ msg }}</div>
+        {% endfor %}{% endif %}
+
+        <div class="tabs">
+            <button class="tab-btn {% if tab == 'login' %}active{% endif %}" onclick="switchTab('login')" id="tab-login">Entrar</button>
+            <button class="tab-btn {% if tab == 'cadastro' %}active{% endif %}" onclick="switchTab('cadastro')" id="tab-cadastro">Criar Conta</button>
+        </div>
+
+        <div class="form-section {% if tab == 'login' %}active{% endif %}" id="form-login">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="login">
+                <div class="form-group">
+                    <label for="login-user">Usuário</label>
+                    <input type="text" id="login-user" name="username" placeholder="Digite seu usuário" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-pass">Senha</label>
+                    <input type="password" id="login-pass" name="password" placeholder="Digite sua senha" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-submit">Entrar →</button>
+            </form>
+            <div class="divider">ou</div>
+            <button class="btn-secondary" onclick="switchTab('cadastro')">Ainda não tem conta? <strong>Criar agora</strong></button>
+        </div>
+
+        <div class="form-section {% if tab == 'cadastro' %}active{% endif %}" id="form-cadastro">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="cadastro">
+                <div class="form-group">
+                    <label for="cad-user">Nome de usuário</label>
+                    <input type="text" id="cad-user" name="username" placeholder="Ex: prof_joao" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="cad-pass">Senha</label>
+                    <input type="password" id="cad-pass" name="password" placeholder="Mínimo 8 caracteres" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="cad-pass2">Confirmar Senha</label>
+                    <input type="password" id="cad-pass2" name="password2" placeholder="Repita a senha" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-submit">Criar Conta ✨</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('form-' + tab).classList.add('active');
+    }
+</script>
+</body>
+</html>
