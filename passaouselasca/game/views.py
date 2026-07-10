@@ -4,7 +4,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Baralho, Carta, CORINGAS_PADRAO
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import Baralho, Carta, Partida, CORINGAS_PADRAO
 
 
 # ── AUTH ──────────────────────────────────────────────────────────────────
@@ -216,3 +218,76 @@ def deletar_baralho_view(request, baralho_id):
         baralho.delete()
         messages.success(request, f'Baralho "{nome}" excluído.')
     return redirect('baralhos')
+
+
+# ── GALERIA ───────────────────────────────────────────────────────────────
+
+@login_required(login_url='/login/')
+def galeria_view(request):
+    baralhos = (
+        Baralho.objects
+        .filter(publico=True)
+        .select_related('professor')
+        .prefetch_related('cartas')
+        .order_by('titulo')
+    )
+    return render(request, 'galeria.html', {'baralhos': baralhos})
+
+
+@login_required(login_url='/login/')
+@require_POST
+def toggle_publico_view(request, baralho_id):
+    baralho = get_object_or_404(Baralho, id=baralho_id, professor=request.user)
+    baralho.publico = not baralho.publico
+    baralho.save()
+    return JsonResponse({'publico': baralho.publico})
+
+
+# ── PARTIDAS ──────────────────────────────────────────────────────────────
+
+@login_required(login_url='/login/')
+@require_POST
+def salvar_partida_view(request):
+    try:
+        data = json.loads(request.body)
+        baralho_id = data.get('baralho_id')
+        equipes = data.get('equipes', [])  # [{nome, pontos}, ...]
+
+        if not equipes:
+            return JsonResponse({'ok': False, 'erro': 'Sem equipes'}, status=400)
+
+        # Determinar vencedor
+        max_pts = max(e['pontos'] for e in equipes)
+        vencedores = [e['nome'] for e in equipes if e['pontos'] == max_pts]
+        vencedor = ' e '.join(vencedores) if len(vencedores) > 1 else vencedores[0]
+
+        baralho = Baralho.objects.filter(id=baralho_id).first()
+
+        Partida.objects.create(
+            baralho=baralho,
+            professor=request.user,
+            equipes_json=json.dumps(equipes),
+            vencedor=vencedor,
+        )
+        return JsonResponse({'ok': True, 'vencedor': vencedor})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'erro': str(e)}, status=500)
+
+
+@login_required(login_url='/login/')
+def historico_view(request):
+    partidas = (
+        Partida.objects
+        .filter(professor=request.user)
+        .select_related('baralho')
+    )
+    meus_baralhos = Baralho.objects.filter(professor=request.user).order_by('titulo')
+
+    # Injetar equipes como lista Python para o template
+    for p in partidas:
+        p.equipes = json.loads(p.equipes_json)
+
+    return render(request, 'historico.html', {
+        'partidas': partidas,
+        'meus_baralhos': meus_baralhos,
+    })

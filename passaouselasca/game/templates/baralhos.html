@@ -119,6 +119,18 @@
         .btn-confirm{padding:12px 24px;background:var(--danger);border:none;border-radius:10px;
             color:white;font-family:'Inter',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s}
         .btn-confirm:hover{opacity:.9}
+
+        /* Toggle público */
+        .toggle-pub{
+            display:inline-flex;align-items:center;gap:6px;
+            padding:6px 14px;border-radius:8px;border:none;cursor:pointer;
+            font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
+            transition:all .2s;
+        }
+        .toggle-pub.privado{background:var(--bg);color:var(--text-muted);border:1.5px solid var(--border)}
+        .toggle-pub.privado:hover{border-color:var(--primary);color:var(--primary)}
+        .toggle-pub.publico{background:rgba(34,197,94,.1);color:#16a34a;border:1.5px solid rgba(34,197,94,.3)}
+        .toggle-pub.publico:hover{background:rgba(34,197,94,.2)}
     </style>
 </head>
 <body>
@@ -129,7 +141,9 @@
         <strong>Passa ou Se Lasca</strong>
     </a>
     <div class="nav-right">
-        <a href="{% url 'home' %}" class="btn btn-ghost">← Voltar ao Início</a>
+        <a href="{% url 'home' %}" class="btn btn-ghost">← Início</a>
+        <a href="{% url 'galeria' %}" class="btn btn-ghost">🌐 Galeria</a>
+        <a href="{% url 'historico' %}" class="btn btn-ghost">📊 Histórico</a>
         <a href="{% url 'criar_baralho' %}" class="btn btn-primary">✨ Criar Novo Baralho</a>
     </div>
 </nav>
@@ -172,6 +186,16 @@
                 <a href="{% url 'editar_baralho' b.id %}" class="action-link">✏️ Editar</a>
                 <button class="action-link danger" style="background:none;border:none;cursor:pointer" onclick="confirmarDelete({{ b.id }}, '{{ b.titulo|escapejs }}')">🗑️ Excluir</button>
             </div>
+            <div style="padding-top:12px;border-top:1px solid var(--border)">
+                <button
+                    id="toggle-pub-{{ b.id }}"
+                    class="toggle-pub {% if b.publico %}publico{% else %}privado{% endif %}"
+                    onclick="togglePublico({{ b.id }}, this)"
+                    data-csrf="{{ csrf_token }}"
+                >
+                    {% if b.publico %}🌐 Público{% else %}🔒 Privado{% endif %}
+                </button>
+            </div>
         </div>
         {% endfor %}
 
@@ -212,6 +236,29 @@
     }
     function fecharModal() { document.getElementById('modal-delete').classList.remove('open'); }
     document.getElementById('modal-delete').addEventListener('click', e => { if(e.target===this||e.target.id==='modal-delete') fecharModal(); });
+
+    async function togglePublico(baralhoId, btn) {
+        const csrf = btn.dataset.csrf;
+        btn.disabled = true;
+        try {
+            const res = await fetch(`/baralhos/${baralhoId}/toggle-publico/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrf, 'Content-Type': 'application/json' },
+            });
+            const data = await res.json();
+            if (data.publico) {
+                btn.className = 'toggle-pub publico';
+                btn.textContent = '🌐 Público';
+            } else {
+                btn.className = 'toggle-pub privado';
+                btn.textContent = '🔒 Privado';
+            }
+        } catch(e) {
+            console.error('Erro ao alternar visibilidade:', e);
+        } finally {
+            btn.disabled = false;
+        }
+    }
 </script>
 </body>
 </html>

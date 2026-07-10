@@ -113,6 +113,8 @@
         <div class="nav-avatar">{{ request.user.username|first|upper }}</div>
         <span class="nav-username">{{ request.user.username }}</span>
         <a href="{% url 'baralhos' %}" class="btn btn-outline">Meus Baralhos</a>
+        <a href="{% url 'galeria' %}" class="btn btn-outline">🌐 Galeria</a>
+        <a href="{% url 'historico' %}" class="btn btn-outline">📊 Histórico</a>
         <a href="{% url 'logout' %}" class="btn btn-ghost">Sair</a>
     </div>
 </nav>
@@ -130,6 +132,10 @@
         <div class="hero-badge">👋 Olá, {{ request.user.username }}!</div>
         <h1>Pronto para uma<br><span class="hi">nova rodada?</span></h1>
         <p>Selecione um baralho e comece a partida com suas equipes.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px">
+            <a href="{% url 'galeria' %}" class="btn btn-outline" style="font-size:14px;padding:10px 20px">🌐 Galeria de Baralhos</a>
+            <a href="{% url 'historico' %}" class="btn btn-outline" style="font-size:14px;padding:10px 20px">📊 Histórico de Partidas</a>
+        </div>
     </div>
 
     <div class="section-hd">

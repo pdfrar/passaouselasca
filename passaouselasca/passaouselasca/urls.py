@@ -24,6 +24,14 @@ urlpatterns = [
     path('baralhos/deletar/<int:baralho_id>/', views.deletar_baralho_view, name='deletar_baralho'),
     path('baralhos/copiar/<int:baralho_id>/', views.copiar_baralho_view, name='copiar_baralho'),
     path('baralhos/<int:baralho_id>/', views.visualizar_baralho_view, name='visualizar_baralho'),
+    path('baralhos/<int:baralho_id>/toggle-publico/', views.toggle_publico_view, name='toggle_publico'),
+
+    # Galeria
+    path('galeria/', views.galeria_view, name='galeria'),
+
+    # Partidas / Histórico
+    path('api/partida/salvar/', views.salvar_partida_view, name='salvar_partida'),
+    path('historico/', views.historico_view, name='historico'),
 ]
 
 if settings.DEBUG:

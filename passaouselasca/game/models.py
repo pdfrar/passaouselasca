@@ -5,9 +5,25 @@ from django.contrib.auth.models import User
 class Baralho(models.Model):
     professor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='baralhos')
     titulo = models.CharField(max_length=200)
+    publico = models.BooleanField(default=False)
 
     def __str__(self):
         return self.titulo
+
+
+class Partida(models.Model):
+    baralho = models.ForeignKey(Baralho, on_delete=models.SET_NULL, null=True, related_name='partidas')
+    professor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='partidas')
+    data = models.DateTimeField(auto_now_add=True)
+    # JSON: [{"nome": "Equipe A", "pontos": 300}, ...]
+    equipes_json = models.TextField()
+    vencedor = models.CharField(max_length=200)  # nome da equipe ou "Empate"
+
+    class Meta:
+        ordering = ['-data']
+
+    def __str__(self):
+        return f"{self.vencedor} — {self.baralho} ({self.data:%d/%m/%Y})"
 
 
 class Carta(models.Model):

@@ -931,6 +931,8 @@
         // ── Dados do Django ────────────────────────────
         const CARTAS_REGULARES = {{ cartas_json| safe }};
         const CORINGAS_POOL = {{ coringas_json| safe }};
+        const BARALHO_ID = {{ baralho.id }};
+        const CSRF_TOKEN = '{{ csrf_token }}';
 
         // ── Estado global ──────────────────────────────
         let equipes = [];
@@ -1114,6 +1116,19 @@
                     vencedores.push(e);
                 }
             });
+
+            // ── Salvar partida no servidor (silencioso) ─────────────────
+            fetch('/api/partida/salvar/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN,
+                },
+                body: JSON.stringify({
+                    baralho_id: BARALHO_ID,
+                    equipes: equipes.map(e => ({ nome: e.nome, pontos: e.pontos })),
+                }),
+            }).catch(() => {}); // não bloqueia em caso de falha
 
             let html = '';
             if (vencedores.length === 1) {

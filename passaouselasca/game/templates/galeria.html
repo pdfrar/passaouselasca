@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passa ou Se Lasca — Galeria de Baralhos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#fff7ed;--surface:#fff;
+            --primary:#f97316;--primary-light:rgba(249,115,22,.08);--primary-mid:rgba(249,115,22,.15);
+            --secondary:#22c55e;
+            --text:#1e1b4b;--text-muted:#6b7280;--border:#e5e7eb;
+            --shadow:0 4px 24px rgba(249,115,22,.12);--radius:16px;
+        }
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+        nav{
+            position:sticky;top:0;z-index:100;
+            display:flex;align-items:center;justify-content:space-between;
+            padding:0 40px;height:72px;
+            background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+            border-bottom:1px solid var(--border)
+        }
+        .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+        .nav-logo-icon{width:38px;height:38px;background:var(--primary);border-radius:10px;
+            display:flex;align-items:center;justify-content:center;font-size:18px}
+        .nav-logo strong{font-size:18px;font-weight:800;color:var(--primary)}
+        .nav-right{display:flex;align-items:center;gap:12px}
+
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;
+            font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;
+            text-decoration:none;border:none;transition:all .2s}
+        .btn-primary{background:var(--primary);color:white;box-shadow:0 4px 14px rgba(249,115,22,.3)}
+        .btn-primary:hover{opacity:.9;transform:translateY(-2px)}
+        .btn-ghost{background:transparent;color:var(--text-muted);border:1.5px solid var(--border)}
+        .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+
+        main{max-width:1080px;margin:0 auto;padding:60px 24px}
+
+        .page-hd{margin-bottom:36px}
+        .page-hd h1{font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px}
+        .page-hd p{font-size:16px;color:var(--text-muted)}
+
+        /* Busca */
+        .search-bar{
+            display:flex;align-items:center;gap:12px;
+            background:white;border:1.5px solid var(--border);
+            border-radius:12px;padding:10px 18px;
+            margin-bottom:32px;transition:border-color .2s
+        }
+        .search-bar:focus-within{border-color:var(--primary)}
+        .search-bar input{
+            flex:1;border:none;outline:none;
+            font-family:'Inter',sans-serif;font-size:16px;
+            color:var(--text);background:transparent
+        }
+        .search-icon{font-size:18px;color:var(--text-muted)}
+
+        /* Grid */
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+
+        .deck-card{
+            background:var(--surface);border:1.5px solid var(--border);
+            border-radius:var(--radius);padding:28px;
+            transition:transform .2s,border-color .2s,box-shadow .2s;
+            display:flex;flex-direction:column;gap:14px
+        }
+        .deck-card:hover{transform:translateY(-4px);border-color:var(--primary);box-shadow:var(--shadow)}
+        .deck-card-top{display:flex;align-items:flex-start;justify-content:space-between}
+        .deck-icon{font-size:36px}
+        .deck-badge{
+            font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;
+            background:var(--primary-light);color:var(--primary);border:1px solid var(--primary-mid)
+        }
+        .deck-title{font-size:19px;font-weight:800;color:var(--text);line-height:1.3}
+        .deck-author{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:5px}
+        .deck-author-avatar{
+            width:22px;height:22px;border-radius:50%;background:var(--primary);
+            display:inline-flex;align-items:center;justify-content:center;
+            font-size:11px;font-weight:700;color:white;flex-shrink:0
+        }
+
+        .btn-copy{
+            display:flex;align-items:center;justify-content:center;gap:8px;
+            width:100%;padding:13px;border-radius:10px;background:var(--primary);
+            color:white;font-size:15px;font-weight:800;
+            text-decoration:none;border:none;cursor:pointer;
+            transition:all .2s;box-shadow:0 4px 12px rgba(249,115,22,.25)
+        }
+        .btn-copy:hover{opacity:.9;transform:translateY(-2px)}
+
+        .empty{text-align:center;padding:100px 20px;background:white;
+            border:1.5px dashed var(--border);border-radius:var(--radius)}
+        .empty-icon{font-size:64px;margin-bottom:24px}
+        .empty h3{font-size:24px;font-weight:800;margin-bottom:12px}
+        .empty p{color:var(--text-muted);margin-bottom:24px;font-size:16px;max-width:400px;margin-inline:auto}
+
+        .msg{padding:14px 20px;border-radius:12px;font-size:15px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+        .msg-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#15803d}
+        .msg-error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#ef4444}
+
+        .count-info{font-size:14px;color:var(--text-muted);margin-bottom:20px}
+        .hidden{display:none!important}
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="{% url 'home' %}" class="nav-logo">
+        <div class="nav-logo-icon">🃏</div>
+        <strong>Passa ou Se Lasca</strong>
+    </a>
+    <div class="nav-right">
+        <a href="{% url 'home' %}" class="btn btn-ghost">← Início</a>
+        <a href="{% url 'baralhos' %}" class="btn btn-ghost">📦 Meus Baralhos</a>
+        <a href="{% url 'historico' %}" class="btn btn-ghost">📊 Histórico</a>
+    </div>
+</nav>
+
+<main>
+    {% if messages %}{% for msg in messages %}
+        <div class="msg {% if msg.level == 25 %}msg-success{% else %}msg-error{% endif %}">
+            {% if msg.level == 25 %}✅{% else %}⚠️{% endif %} {{ msg }}
+        </div>
+    {% endfor %}{% endif %}
+
+    <div class="page-hd">
+        <h1>🌐 Galeria de Baralhos</h1>
+        <p>Descubra baralhos criados por outros professores e copie para a sua coleção.</p>
+    </div>
+
+    <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Buscar baralho por nome ou autor..." oninput="filtrar()">
+    </div>
+
+    {% if baralhos %}
+    <p class="count-info" id="count-info">{{ baralhos|length }} baralho{{ baralhos|length|pluralize }} disponível{{ baralhos|length|pluralize:"is" }}</p>
+    <div class="grid" id="galeria-grid">
+        {% for b in baralhos %}
+        <div class="deck-card" data-titulo="{{ b.titulo|lower }}" data-autor="{{ b.professor.username|lower }}">
+            <div class="deck-card-top">
+                <div class="deck-icon">🃏</div>
+                <span class="deck-badge">{{ b.cartas.count }} carta{% if b.cartas.count != 1 %}s{% endif %}</span>
+            </div>
+            <div class="deck-title">{{ b.titulo }}</div>
+            <div class="deck-author">
+                <div class="deck-author-avatar">{{ b.professor.username|first|upper }}</div>
+                {{ b.professor.username }}
+            </div>
+            <form method="POST" action="{% url 'copiar_baralho' b.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-copy">📋 Copiar para Meus Baralhos</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <p id="no-results" class="hidden" style="text-align:center;padding:48px;color:var(--text-muted);font-size:17px;font-weight:600">
+        😕 Nenhum baralho encontrado para "<span id="search-term"></span>"
+    </p>
+
+    {% else %}
+    <div class="empty">
+        <div class="empty-icon">🌱</div>
+        <h3>Galeria vazia por enquanto</h3>
+        <p>Nenhum professor publicou baralhos ainda. Publique o seu em "Meus Baralhos" e ajude a comunidade!</p>
+        <a href="{% url 'baralhos' %}" class="btn btn-primary" style="font-size:15px;padding:13px 28px">📦 Ir para Meus Baralhos</a>
+    </div>
+    {% endif %}
+</main>
+
+<script>
+    function filtrar() {
+        const q = document.getElementById('search-input').value.toLowerCase().trim();
+        const cards = document.querySelectorAll('#galeria-grid .deck-card');
+        let visiveis = 0;
+
+        cards.forEach(card => {
+            const titulo = card.dataset.titulo || '';
+            const autor = card.dataset.autor || '';
+            const match = titulo.includes(q) || autor.includes(q);
+            card.classList.toggle('hidden', !match);
+            if (match) visiveis++;
+        });
+
+        const noResults = document.getElementById('no-results');
+        const countInfo = document.getElementById('count-info');
+        if (noResults) {
+            document.getElementById('search-term').textContent = q;
+            noResults.classList.toggle('hidden', visiveis > 0 || !q);
+        }
+        if (countInfo) {
+            countInfo.textContent = visiveis === 1
+                ? '1 baralho encontrado'
+                : `${visiveis} baralhos encontrados`;
+        }
+    }
+</script>
+</body>
+</html>
