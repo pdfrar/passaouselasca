@@ -1,101 +1,86 @@
-﻿<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if baralho %}Editar Baralho{% else %}Criar Baralho{% endif %} — Passa ou Se Lasca</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{
-            --bg:#fff7ed;--surface:#fff;
-            --primary:#f97316;--primary-light:rgba(249,115,22,.08);--primary-mid:rgba(249,115,22,.18);
-            --secondary:#22c55e;
-            --text:#1e1b4b;--text-muted:#6b7280;--border:#e5e7eb;
-            --danger:#ef4444;--danger-light:rgba(239,68,68,.08);
-            --radius:16px;--nav:64px;
-        }
-        html,body{height:100%;overflow:hidden;font-family:'Inter',sans-serif;color:var(--text)}
-        nav{
-            position:fixed;top:0;left:0;right:0;z-index:100;
-            display:flex;align-items:center;justify-content:space-between;
-            padding:0 28px;height:var(--nav);
-            background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
-            border-bottom:1px solid var(--border);
-        }
-        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
-        .nav-logo-icon{width:34px;height:34px;background:var(--primary);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
-        .nav-logo strong{font-size:17px;font-weight:800;color:var(--primary)}
-        .nav-center{font-size:13px;font-weight:600;color:var(--text-muted);background:var(--bg);padding:6px 14px;border-radius:999px;border:1px solid var(--border)}
-        .nav-right{display:flex;align-items:center;gap:8px}
-        .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;border:none;transition:all .2s}
-        .btn-ghost{background:transparent;color:var(--text-muted);border:1.5px solid var(--border)}
-        .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
-        .workspace{display:flex;height:calc(100vh - var(--nav));margin-top:var(--nav)}
-        .left-panel{width:340px;min-width:300px;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--border)}
-        .left-inner{flex:1;overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;gap:13px}
-        .left-inner::-webkit-scrollbar{width:3px}
-        .left-inner::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-        .section-label{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted)}
-        .divider{height:1px;background:var(--border)}
-        .input-title{width:100%;font-size:17px;font-weight:800;padding:11px 13px;border-radius:9px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;transition:all .2s;outline:none}
-        .input-title:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px var(--primary-light)}
-        .field-group{display:flex;flex-direction:column;gap:5px}
-        .field-label{font-size:12px;font-weight:700;color:var(--text)}
-        textarea,input[type="number"]{width:100%;padding:9px 11px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;transition:all .2s}
-        textarea{resize:none}
-        textarea:focus,input[type="number"]:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px var(--primary-light)}
-        .pts-row{display:flex;gap:5px;flex-wrap:wrap}
-        .pts-chip{padding:5px 12px;border-radius:999px;border:1.5px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;cursor:pointer;color:var(--text-muted);transition:all .15s;user-select:none}
-        .pts-chip:hover,.pts-chip.active{background:var(--primary-mid);border-color:var(--primary);color:var(--primary)}
-        .file-upload{position:relative;display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--border);border-radius:8px;background:var(--bg);padding:10px;cursor:pointer;transition:all .2s;text-align:center;min-height:50px}
-        .file-upload:hover{border-color:var(--primary);background:var(--primary-light)}
-        .file-upload input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-        .file-upload-text{font-size:12px;font-weight:600;color:var(--text-muted);pointer-events:none}
-        .file-upload-text strong{color:var(--primary)}
-        .add-btn-full{width:100%;padding:12px;border-radius:9px;background:var(--primary);color:white;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 14px rgba(249,115,22,.28);transition:all .2s}
-        .add-btn-full:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
-        .add-btn-full:disabled{opacity:.6;cursor:not-allowed;transform:none}
-        #add-card-feedback{display:none;padding:8px 12px;border-radius:8px;font-weight:600;font-size:12px;text-align:center}
-        .left-footer{padding:14px 18px;border-top:1px solid var(--border);background:white}
-        .save-deck-btn{width:100%;padding:12px;border-radius:9px;background:var(--secondary);color:white;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 14px rgba(34,197,94,.28);transition:all .2s}
-        .save-deck-btn:hover{opacity:.9;transform:translateY(-1px)}
-        .right-panel{flex:1;overflow-y:auto;background:var(--bg);padding:24px 24px 40px}
-        .right-panel::-webkit-scrollbar{width:5px}
-        .right-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px}
-        .mural-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-        .mural-title{font-size:20px;font-weight:800}
-        .cards-count{background:var(--primary-light);color:var(--primary);padding:4px 13px;border-radius:999px;font-size:12px;font-weight:700}
-        .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;align-content:start}
-        .card-item{background:white;border-radius:14px;border:1px solid var(--border);box-shadow:0 3px 12px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden;transition:all .25s;position:relative}
-        .card-item:hover{transform:translateY(-5px) rotate(.3deg);box-shadow:0 14px 34px rgba(249,115,22,.15);border-color:var(--primary)}
-        .card-img{width:100%;height:108px;background:linear-gradient(135deg,#fff7ed,#ffedd5);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);overflow:hidden;font-size:32px;color:#fed7aa}
-        .card-img img{width:100%;height:100%;object-fit:cover}
-        .card-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:7px}
-        .card-question{font-size:13px;font-weight:700;line-height:1.45;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-        .card-answer{font-size:12px;color:var(--text-muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding-left:7px;border-left:3px solid var(--secondary)}
-        .card-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border-top:1px solid var(--border)}
-        .card-pts{font-size:12px;font-weight:800;color:var(--primary);background:var(--primary-light);padding:3px 9px;border-radius:999px}
-        .card-del{padding:5px;border-radius:7px;border:1px solid var(--border);background:white;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-        .card-del:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-light)}
-        .card-del:disabled{opacity:.4;cursor:not-allowed}
-        .card-num{position:absolute;top:7px;left:9px;font-size:10px;font-weight:800;color:rgba(255,255,255,.95);background:rgba(0,0,0,.25);padding:2px 7px;border-radius:999px}
-        .empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;text-align:center;border:2px dashed var(--border);border-radius:var(--radius)}
-        .no-deck-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px}
-        @keyframes slideIn{from{opacity:0;transform:translateY(-12px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
-    </style>
-</head>
-<body>
-<nav>
-    <a href="{% url 'baralhos' %}" class="nav-logo">
-        <div class="nav-logo-icon">🃏</div>
-        <strong>Passa ou Se Lasca</strong>
-    </a>
+{% extends 'base.html' %}
+
+{% block title %}{% if baralho %}Editar Baralho{% else %}Criar Baralho{% endif %} — Passa ou Se Lasca{% endblock %}
+
+{% block extra_css %}
+    /* Workspace sobrescreve o layout padrão do base.html */
+    html,body{height:100%;overflow:hidden}
+    nav{position:fixed;top:0;left:0;right:0;height:64px;padding:0 28px}
+    main{max-width:none;padding:0;margin:0}
+
+    .nav-center{font-size:13px;font-weight:600;color:var(--text-muted);background:var(--bg);padding:6px 14px;border-radius:999px;border:1px solid var(--border)}
+
+    /* WORKSPACE */
+    .workspace{display:flex;height:calc(100vh - 64px);margin-top:64px}
+
+    /* LEFT PANEL */
+    .left-panel{width:340px;min-width:300px;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--border)}
+    .left-inner{flex:1;overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;gap:13px}
+    .left-inner::-webkit-scrollbar{width:3px}
+    .left-inner::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+    .section-label{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted)}
+    .divider{height:1px;background:var(--border)}
+    .input-title{width:100%;font-size:17px;font-weight:800;padding:11px 13px;border-radius:9px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;transition:all .2s;outline:none}
+    .input-title:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px var(--primary-light)}
+    .field-group{display:flex;flex-direction:column;gap:5px}
+    .field-label{font-size:12px;font-weight:700;color:var(--text)}
+    textarea,input[type="number"]{width:100%;padding:9px 11px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;transition:all .2s}
+    textarea{resize:none}
+    textarea:focus,input[type="number"]:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px var(--primary-light)}
+    .pts-row{display:flex;gap:5px;flex-wrap:wrap}
+    .pts-chip{padding:5px 12px;border-radius:999px;border:1.5px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;cursor:pointer;color:var(--text-muted);transition:all .15s;user-select:none}
+    .pts-chip:hover,.pts-chip.active{background:var(--primary-mid);border-color:var(--primary);color:var(--primary)}
+    .file-upload{position:relative;display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--border);border-radius:8px;background:var(--bg);padding:10px;cursor:pointer;transition:all .2s;text-align:center;min-height:50px}
+    .file-upload:hover{border-color:var(--primary);background:var(--primary-light)}
+    .file-upload input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .file-upload-text{font-size:12px;font-weight:600;color:var(--text-muted);pointer-events:none}
+    .file-upload-text strong{color:var(--primary)}
+    .add-btn-full{width:100%;padding:12px;border-radius:9px;background:var(--primary);color:white;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 14px rgba(249,115,22,.28);transition:all .2s}
+    .add-btn-full:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
+    .add-btn-full:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    #add-card-feedback{display:none;padding:8px 12px;border-radius:8px;font-weight:600;font-size:12px;text-align:center}
+
+    /* LEFT FOOTER */
+    .left-footer{padding:14px 18px;border-top:1px solid var(--border);background:white}
+    .save-deck-btn{width:100%;padding:12px;border-radius:9px;background:var(--secondary);color:white;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 14px rgba(34,197,94,.28);transition:all .2s}
+    .save-deck-btn:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
+    .save-deck-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+    /* RIGHT PANEL */
+    .right-panel{flex:1;overflow-y:auto;background:var(--bg);padding:24px 24px 40px}
+    .right-panel::-webkit-scrollbar{width:5px}
+    .right-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px}
+    .mural-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .mural-title{font-size:20px;font-weight:800}
+    .cards-count{background:var(--primary-light);color:var(--primary);padding:4px 13px;border-radius:999px;font-size:12px;font-weight:700}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;align-content:start}
+    .card-item{background:white;border-radius:14px;border:1px solid var(--border);box-shadow:0 3px 12px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden;transition:all .25s;position:relative}
+    .card-item:hover{transform:translateY(-5px) rotate(.3deg);box-shadow:0 14px 34px rgba(249,115,22,.15);border-color:var(--primary)}
+    .card-img{width:100%;height:108px;background:linear-gradient(135deg,#fff7ed,#ffedd5);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);overflow:hidden;font-size:32px;color:#fed7aa}
+    .card-img img{width:100%;height:100%;object-fit:cover}
+    .card-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:7px}
+    .card-question{font-size:13px;font-weight:700;line-height:1.45;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .card-answer{font-size:12px;color:var(--text-muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding-left:7px;border-left:3px solid var(--secondary)}
+    .card-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border-top:1px solid var(--border)}
+    .card-pts{font-size:12px;font-weight:800;color:var(--primary);background:var(--primary-light);padding:3px 9px;border-radius:999px}
+    .card-del{padding:5px;border-radius:7px;border:1px solid var(--border);background:white;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .card-del:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-light)}
+    .card-del:disabled{opacity:.4;cursor:not-allowed}
+    .card-num{position:absolute;top:7px;left:9px;font-size:10px;font-weight:800;color:rgba(255,255,255,.95);background:rgba(0,0,0,.25);padding:2px 7px;border-radius:999px}
+    .empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;text-align:center;border:2px dashed var(--border);border-radius:var(--radius)}
+    .no-deck-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-12px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+{% endblock %}
+
+{% block nav_logo_href %}{% url 'baralhos' %}{% endblock %}
+
+{% block nav_right %}
     <span class="nav-center">{% if baralho %}✏️ {{ baralho.titulo }}{% else %}✨ Novo Baralho{% endif %}</span>
-    <div class="nav-right">
-        <a href="{% url 'baralhos' %}" class="btn btn-ghost">← Voltar</a>
-    </div>
-</nav>
+    <a href="{% url 'baralhos' %}" class="btn btn-ghost">← Voltar</a>
+{% endblock %}
+
+{# Sobrescreve o block body para usar o layout workspace em vez de <main> #}
+{% block body %}
 <div class="workspace">
     <div class="left-panel">
         <div class="left-inner">
@@ -104,14 +89,18 @@
                 {% if msg.level == 25 %}✅{% else %}⚠️{% endif %} {{ msg }}
             </div>
             {% endfor %}{% endif %}
+
             <form method="POST" id="deck-form">
                 {% csrf_token %}
                 <input type="hidden" name="acao" value="salvar_baralho">
                 <div class="field-group">
                     <span class="section-label">Título do baralho</span>
-                    <input type="text" id="titulo" name="titulo" class="input-title" placeholder="Ex: Revisão — História Séc. XX" value="{{ baralho.titulo|default:'' }}" required>
+                    <input type="text" id="titulo" name="titulo" class="input-title"
+                           placeholder="Ex: Revisão — História Séc. XX"
+                           value="{{ baralho.titulo|default:'' }}" required>
                 </div>
             </form>
+
             {% if baralho %}
             <div class="divider"></div>
             <form id="add-card-form" data-url="{% url 'adicionar_carta' baralho.id %}" enctype="multipart/form-data" novalidate>
@@ -155,12 +144,15 @@
             </div>
             {% endif %}
         </div>
+
         <div class="left-footer">
-            <button class="save-deck-btn" onclick="document.getElementById('deck-form').submit()">
+            {# #10: botão com estado de loading para evitar duplos cliques #}
+            <button class="save-deck-btn" id="save-deck-btn" onclick="submitDeck()">
                 {% if baralho %}💾 Salvar e Concluir{% else %}✅ Criar Baralho{% endif %}
             </button>
         </div>
     </div>
+
     <div class="right-panel">
         {% if baralho %}
         <div class="mural-header">
@@ -200,7 +192,18 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
 <script>
+    // #10: estado de loading no botão salvar — evita duplos cliques
+    function submitDeck() {
+        const btn = document.getElementById('save-deck-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Salvando…';
+        document.getElementById('deck-form').submit();
+    }
+
     function getCsrf(){const m=document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith('csrftoken='));return m?m.split('=')[1]:'';}
     function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
     function updName(input){const txt=document.getElementById('file-name');if(input.files&&input.files[0]){txt.textContent='📎 '+input.files[0].name;txt.style.color='var(--text)';}else{txt.innerHTML='📎 <strong>Clique</strong> para anexar';txt.style.color='var(--text-muted)';}}
@@ -209,9 +212,8 @@
     function updateCount(delta){const el=document.getElementById('cards-count');if(!el)return;const next=(parseInt(el.dataset.count)||0)+delta;el.dataset.count=next;el.textContent=next+' carta'+(next!==1?'s':'');}
     function showFeedback(msg,type){const el=document.getElementById('add-card-feedback');if(!el)return;el.textContent=msg;el.style.cssText='display:block;padding:8px 12px;border-radius:8px;font-weight:600;font-size:12px;text-align:center;margin-top:2px;background:'+(type==='success'?'rgba(34,197,94,.12)':'rgba(239,68,68,.12)')+';color:'+(type==='success'?'#15803d':'#ef4444')+';border:1px solid '+(type==='success'?'rgba(34,197,94,.3)':'rgba(239,68,68,.3)');clearTimeout(el._t);el._t=setTimeout(()=>{el.style.display='none';},3500);}
     const addForm=document.getElementById('add-card-form');
-    function injectCard(c){const grid=document.getElementById('cards-grid');document.getElementById('empty-state')?.remove();const imgHtml=c.imagem_url?`<img src="${c.imagem_url}" alt="">`:'🃏';const delUrl=addForm.dataset.url.replace('adicionar-carta/',`deletar-carta/${c.id}/`);const num=document.querySelectorAll('.card-item').length+1;const div=document.createElement('div');div.className='card-item';div.id='card-'+c.id;div.style.animation='slideIn .3s ease';div.innerHTML=`<div class="card-num">#${num}</div><div class="card-img">${imgHtml}</div><div class="card-body"><div class="card-question">${escHtml(c.pergunta)}</div><div class="card-answer">${escHtml(c.resposta)}</div></div><div class="card-footer"><span class="card-pts">${c.pontos} pts</span><button class="card-del" title="Excluir" onclick="deletarCarta('${delUrl}',${c.id},this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>`;grid.prepend(div);}
+    function injectCard(c){const grid=document.getElementById('cards-grid');document.getElementById('empty-state')?.remove();const imgHtml=c.imagem_url?`<img src="${c.imagem_url}" alt="">`:' 🃏';const delUrl=addForm.dataset.url.replace('adicionar-carta/',`deletar-carta/${c.id}/`);const num=document.querySelectorAll('.card-item').length+1;const div=document.createElement('div');div.className='card-item';div.id='card-'+c.id;div.style.animation='slideIn .3s ease';div.innerHTML=`<div class="card-num">#${num}</div><div class="card-img">${imgHtml}</div><div class="card-body"><div class="card-question">${escHtml(c.pergunta)}</div><div class="card-answer">${escHtml(c.resposta)}</div></div><div class="card-footer"><span class="card-pts">${c.pontos} pts</span><button class="card-del" title="Excluir" onclick="deletarCarta('${delUrl}',${c.id},this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>`;grid.prepend(div);}
     if(addForm){addForm.addEventListener('submit',async e=>{e.preventDefault();const btn=document.getElementById('add-card-btn');const pergunta=addForm.querySelector('[name=pergunta]').value.trim();if(!pergunta){showFeedback('⚠️ A pergunta não pode estar vazia.','error');return;}btn.disabled=true;btn.textContent='⏳ Salvando...';try{const res=await fetch(addForm.dataset.url,{method:'POST',headers:{'X-CSRFToken':getCsrf()},body:new FormData(addForm)});const data=await res.json();if(data.ok){injectCard(data.carta);updateCount(+1);addForm.reset();document.getElementById('pontos').value=100;document.querySelectorAll('.pts-chip').forEach(c=>c.classList.toggle('active',c.dataset.val==='100'));document.getElementById('file-name').innerHTML='📎 <strong>Clique</strong> para anexar';showFeedback('✅ Carta adicionada!','success');document.querySelector('.right-panel').scrollTo({top:0,behavior:'smooth'});}else{showFeedback('⚠️ '+(data.erro||'Erro.'),'error');}}catch{showFeedback('⚠️ Erro de conexão.','error');}finally{btn.disabled=false;btn.textContent='➕ Adicionar Carta';}});}
     async function deletarCarta(url,cartaId,btn){if(!confirm('Excluir esta carta definitivamente?'))return;btn.disabled=true;try{const res=await fetch(url,{method:'POST',headers:{'X-CSRFToken':getCsrf()}});const data=await res.json();if(data.ok){const card=document.getElementById('card-'+cartaId);if(card){card.style.transition='opacity .22s, transform .22s';card.style.opacity='0';card.style.transform='scale(.88)';setTimeout(()=>{card.remove();updateCount(-1);document.querySelectorAll('.card-num').forEach((n,i)=>n.textContent='#'+(i+1));if(!document.querySelector('.card-item')){document.getElementById('cards-grid').innerHTML='<div class="empty-state" id="empty-state"><div style="font-size:52px;margin-bottom:14px">📭</div><div style="font-size:17px;font-weight:800;margin-bottom:8px">Nenhuma carta ainda</div><div style="font-size:14px;color:var(--text-muted)">Use o painel à esquerda para criar a primeira!</div></div>';}},250);}}}catch{btn.disabled=false;}}
 </script>
-</body>
-</html>
+{% endblock %}

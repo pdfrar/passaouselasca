@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Passa ou Se Lasca{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ── RESET ───────────────────────────────────────────────────── */
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+        /* ── DESIGN TOKENS ───────────────────────────────────────────── */
+        :root{
+            --bg:#fff7ed;--surface:#fff;
+            --primary:#f97316;--primary-light:rgba(249,115,22,.08);--primary-mid:rgba(249,115,22,.15);
+            --secondary:#22c55e;
+            --text:#1e1b4b;--text-muted:#6b7280;--border:#e5e7eb;
+            --danger:#ef4444;--danger-light:rgba(239,68,68,.08);
+            --gold:#f59e0b;--gold-light:rgba(245,158,11,.1);
+            --shadow:0 4px 24px rgba(249,115,22,.12);--radius:16px;
+        }
+
+        /* ── BASE ────────────────────────────────────────────────────── */
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+        /* ── NAV ─────────────────────────────────────────────────────── */
+        nav{
+            position:sticky;top:0;z-index:100;
+            display:flex;align-items:center;justify-content:space-between;
+            padding:0 40px;height:72px;
+            background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+            border-bottom:1px solid var(--border)
+        }
+        .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+        .nav-logo-icon{width:38px;height:38px;background:var(--primary);border-radius:10px;
+            display:flex;align-items:center;justify-content:center;font-size:18px}
+        .nav-logo strong{font-size:18px;font-weight:800;color:var(--primary)}
+        .nav-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+        .nav-avatar{width:34px;height:34px;border-radius:50%;background:var(--primary);
+            display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+        .nav-username{font-size:13px;font-weight:600;color:var(--text-muted)}
+
+        /* ── BUTTONS ─────────────────────────────────────────────────── */
+        .btn{
+            display:inline-flex;align-items:center;gap:8px;
+            padding:10px 20px;border-radius:10px;
+            font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
+            cursor:pointer;text-decoration:none;border:none;transition:all .2s
+        }
+        .btn-primary{background:var(--primary);color:white;box-shadow:0 4px 14px rgba(249,115,22,.3)}
+        .btn-primary:hover{opacity:.9;transform:translateY(-2px)}
+        .btn-ghost{background:transparent;color:var(--text-muted);border:1.5px solid var(--border)}
+        .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+        .btn-outline{background:white;color:var(--primary);border:1.5px solid var(--primary)}
+        .btn-outline:hover{background:var(--primary-light)}
+        .btn-danger{background:var(--danger);color:white;border:none;box-shadow:0 3px 10px rgba(239,68,68,.25)}
+        .btn-danger:hover{opacity:.9}
+
+        /* ── LOGOUT FORM (converte <a> em form POST seguro) ──────────── */
+        .logout-form{display:inline;margin:0}
+        .logout-form button{
+            display:inline-flex;align-items:center;gap:8px;
+            padding:10px 20px;border-radius:10px;
+            font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
+            cursor:pointer;transition:all .2s;
+            background:transparent;color:var(--text-muted);
+            border:1.5px solid var(--border);box-sizing:border-box
+        }
+        .logout-form button:hover{border-color:var(--danger);color:var(--danger)}
+
+        /* ── FLASH MESSAGES ─────────────────────────────────────────── */
+        .msg{padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;
+            margin-bottom:16px;display:flex;align-items:center;gap:8px}
+        .msg-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#15803d}
+        .msg-error{background:var(--danger-light);border:1px solid rgba(239,68,68,.3);color:var(--danger)}
+
+        /* ── MAIN LAYOUT ─────────────────────────────────────────────── */
+        main{max-width:1080px;margin:0 auto;padding:60px 24px}
+
+        /* ── EMPTY STATE ─────────────────────────────────────────────── */
+        .empty{text-align:center;padding:80px 20px}
+        .empty-icon{font-size:60px;margin-bottom:20px}
+        .empty h3{font-size:22px;font-weight:800;margin-bottom:10px}
+        .empty p{color:var(--text-muted);font-size:15px;max-width:400px;margin-inline:auto;margin-bottom:24px}
+
+        /* ── MODAL ───────────────────────────────────────────────────── */
+        .modal-overlay{display:none;position:fixed;inset:0;
+            background:rgba(30,27,75,.6);backdrop-filter:blur(6px);
+            z-index:200;align-items:center;justify-content:center}
+        .modal-overlay.open{display:flex}
+        .modal-box{background:var(--surface);border:1px solid var(--border);
+            border-radius:var(--radius);padding:40px;max-width:420px;width:90%;
+            text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+        .modal-box h3{font-size:22px;font-weight:800;margin-bottom:12px}
+        .modal-box p{color:var(--text-muted);font-size:15px;margin-bottom:32px;line-height:1.5}
+        .modal-actions{display:flex;gap:12px;justify-content:center}
+        .btn-cancel{padding:12px 24px;background:var(--bg);border:1.5px solid var(--border);
+            border-radius:10px;color:var(--text-muted);font-family:'Inter',sans-serif;
+            font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+        .btn-cancel:hover{border-color:var(--text-muted);color:var(--text)}
+        .btn-confirm{padding:12px 24px;background:var(--danger);border:none;border-radius:10px;
+            color:white;font-family:'Inter',sans-serif;font-size:15px;font-weight:800;
+            cursor:pointer;transition:all .2s}
+        .btn-confirm:hover{opacity:.9}
+
+        /* ── PAGINATION ──────────────────────────────────────────────── */
+        .pagination{
+            display:flex;align-items:center;justify-content:center;
+            gap:12px;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)
+        }
+        .pagination span{font-size:14px;font-weight:600;color:var(--text-muted)}
+
+        /* ── PAGE EXTENSIONS ─────────────────────────────────────────── */
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+<nav>
+    <a href="{% block nav_logo_href %}{% url 'home' %}{% endblock %}" class="nav-logo">
+        <div class="nav-logo-icon">🃏</div>
+        <strong>Passa ou Se Lasca</strong>
+    </a>
+    <div class="nav-right">
+        {% block nav_right %}{% endblock %}
+    </div>
+</nav>
+
+{% block body %}
+<main>
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="msg {% if msg.level == 25 %}msg-success{% else %}msg-error{% endif %}">
+                {% if msg.level == 25 %}✅{% else %}⚠️{% endif %} {{ msg }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+{% endblock %}
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

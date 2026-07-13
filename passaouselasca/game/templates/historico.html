@@ -1,151 +1,66 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Passa ou Se Lasca — Histórico de Partidas</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{
-            --bg:#fff7ed;--surface:#fff;
-            --primary:#f97316;--primary-light:rgba(249,115,22,.08);--primary-mid:rgba(249,115,22,.15);
-            --secondary:#22c55e;
-            --text:#1e1b4b;--text-muted:#6b7280;--border:#e5e7eb;
-            --gold:#f59e0b;--shadow:0 4px 24px rgba(249,115,22,.12);--radius:16px;
-        }
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+{% extends 'base.html' %}
 
-        nav{
-            position:sticky;top:0;z-index:100;
-            display:flex;align-items:center;justify-content:space-between;
-            padding:0 40px;height:72px;
-            background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
-            border-bottom:1px solid var(--border)
-        }
-        .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
-        .nav-logo-icon{width:38px;height:38px;background:var(--primary);border-radius:10px;
-            display:flex;align-items:center;justify-content:center;font-size:18px}
-        .nav-logo strong{font-size:18px;font-weight:800;color:var(--primary)}
-        .nav-right{display:flex;align-items:center;gap:12px}
+{% block title %}Passa ou Se Lasca — Histórico de Partidas{% endblock %}
 
-        .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;
-            font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;
-            text-decoration:none;border:none;transition:all .2s}
-        .btn-ghost{background:transparent;color:var(--text-muted);border:1.5px solid var(--border)}
-        .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
-        .btn-primary{background:var(--primary);color:white;box-shadow:0 4px 14px rgba(249,115,22,.3)}
-        .btn-primary:hover{opacity:.9;transform:translateY(-2px)}
+{% block extra_css %}
+    .page-hd{margin-bottom:36px}
+    .page-hd h1{font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px}
+    .page-hd p{font-size:16px;color:var(--text-muted)}
 
-        main{max-width:1080px;margin:0 auto;padding:60px 24px}
+    /* Filtro */
+    .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+    .filter-bar label{font-size:14px;font-weight:700;color:var(--text-muted)}
+    .filter-bar select{
+        padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;
+        font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
+        color:var(--text);background:white;outline:none;cursor:pointer;transition:border-color .2s
+    }
+    .filter-bar select:focus{border-color:var(--primary)}
 
-        .page-hd{margin-bottom:36px}
-        .page-hd h1{font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:10px}
-        .page-hd p{font-size:16px;color:var(--text-muted)}
+    /* Stats */
+    .stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:36px}
+    .stat-card{background:white;border:1.5px solid var(--border);border-radius:var(--radius);padding:20px 28px;flex:1;min-width:160px}
+    .stat-val{font-size:32px;font-weight:900;color:var(--primary);line-height:1}
+    .stat-lbl{font-size:13px;color:var(--text-muted);font-weight:600;margin-top:6px}
 
-        /* Filtro */
-        .filter-bar{
-            display:flex;align-items:center;gap:12px;margin-bottom:32px;flex-wrap:wrap
-        }
-        .filter-bar label{font-size:14px;font-weight:700;color:var(--text-muted)}
-        .filter-bar select{
-            padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;
-            font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
-            color:var(--text);background:white;outline:none;cursor:pointer;
-            transition:border-color .2s
-        }
-        .filter-bar select:focus{border-color:var(--primary)}
+    /* Tabela */
+    .table-wrap{background:white;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    thead{background:var(--bg)}
+    thead th{padding:14px 20px;text-align:left;font-size:12px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1.5px solid var(--border)}
+    tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+    tbody tr:last-child{border-bottom:none}
+    tbody tr:hover{background:var(--bg)}
+    tbody td{padding:16px 20px;font-size:14px;vertical-align:middle}
 
-        /* Stats */
-        .stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:36px}
-        .stat-card{
-            background:white;border:1.5px solid var(--border);border-radius:var(--radius);
-            padding:20px 28px;flex:1;min-width:160px;
-        }
-        .stat-val{font-size:32px;font-weight:900;color:var(--primary);line-height:1}
-        .stat-lbl{font-size:13px;color:var(--text-muted);font-weight:600;margin-top:6px}
+    .vencedor-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:999px;font-size:13px;font-weight:800;background:var(--gold-light);color:var(--gold);border:1.5px solid rgba(245,158,11,.3)}
+    .empate-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:999px;font-size:13px;font-weight:800;background:var(--primary-light);color:var(--primary);border:1.5px solid var(--primary-mid)}
+    .equipes-lista{display:flex;flex-wrap:wrap;gap:6px}
+    .equipe-chip{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;background:var(--bg);border:1px solid var(--border);color:var(--text)}
+    .equipe-chip.top{background:var(--gold-light);color:var(--gold);border-color:rgba(245,158,11,.3)}
+    .data-cell{font-size:13px;color:var(--text-muted)}
+    .baralho-cell{font-weight:700}
+    .hidden{display:none!important}
+    .count-info{font-size:14px;color:var(--text-muted);margin-bottom:12px}
+{% endblock %}
 
-        /* Tabela */
-        .table-wrap{
-            background:white;border:1.5px solid var(--border);border-radius:var(--radius);
-            overflow:hidden;
-        }
-        table{width:100%;border-collapse:collapse}
-        thead{background:var(--bg)}
-        thead th{
-            padding:14px 20px;text-align:left;
-            font-size:12px;font-weight:800;color:var(--text-muted);
-            text-transform:uppercase;letter-spacing:.8px;
-            border-bottom:1.5px solid var(--border)
-        }
-        tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
-        tbody tr:last-child{border-bottom:none}
-        tbody tr:hover{background:var(--bg)}
-        tbody td{padding:16px 20px;font-size:14px;vertical-align:middle}
+{% block nav_right %}
+    <a href="{% url 'home' %}" class="btn btn-ghost">← Início</a>
+    <a href="{% url 'baralhos' %}" class="btn btn-ghost">📦 Meus Baralhos</a>
+    <a href="{% url 'galeria' %}" class="btn btn-ghost">🌐 Galeria</a>
+{% endblock %}
 
-        .vencedor-badge{
-            display:inline-flex;align-items:center;gap:6px;
-            padding:5px 14px;border-radius:999px;
-            font-size:13px;font-weight:800;
-            background:rgba(245,158,11,.1);color:var(--gold);
-            border:1.5px solid rgba(245,158,11,.3)
-        }
-        .empate-badge{
-            display:inline-flex;align-items:center;gap:6px;
-            padding:5px 14px;border-radius:999px;
-            font-size:13px;font-weight:800;
-            background:var(--primary-light);color:var(--primary);
-            border:1.5px solid var(--primary-mid)
-        }
-
-        .equipes-lista{display:flex;flex-wrap:wrap;gap:6px}
-        .equipe-chip{
-            padding:4px 10px;border-radius:6px;
-            font-size:12px;font-weight:700;
-            background:var(--bg);border:1px solid var(--border);
-            color:var(--text)
-        }
-        .equipe-chip.top{background:rgba(245,158,11,.1);color:var(--gold);border-color:rgba(245,158,11,.3)}
-
-        .data-cell{font-size:13px;color:var(--text-muted)}
-        .baralho-cell{font-weight:700}
-        .baralho-cell small{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin-top:2px}
-
-        .empty{text-align:center;padding:80px 20px}
-        .empty-icon{font-size:60px;margin-bottom:20px}
-        .empty h3{font-size:22px;font-weight:800;margin-bottom:10px}
-        .empty p{color:var(--text-muted);font-size:15px;max-width:380px;margin-inline:auto}
-
-        .hidden{display:none!important}
-        .count-info{font-size:14px;color:var(--text-muted);margin-bottom:12px}
-    </style>
-</head>
-<body>
-
-<nav>
-    <a href="{% url 'home' %}" class="nav-logo">
-        <div class="nav-logo-icon">🃏</div>
-        <strong>Passa ou Se Lasca</strong>
-    </a>
-    <div class="nav-right">
-        <a href="{% url 'home' %}" class="btn btn-ghost">← Início</a>
-        <a href="{% url 'baralhos' %}" class="btn btn-ghost">📦 Meus Baralhos</a>
-        <a href="{% url 'galeria' %}" class="btn btn-ghost">🌐 Galeria</a>
-    </div>
-</nav>
-
-<main>
+{% block content %}
     <div class="page-hd">
         <h1>📊 Histórico de Partidas</h1>
         <p>Todas as partidas que você jogou, com placar e vencedor registrados.</p>
     </div>
 
     {% if partidas %}
-
     <!-- Stats rápidas -->
     <div class="stats">
         <div class="stat-card">
-            <div class="stat-val">{{ partidas|length }}</div>
+            <div class="stat-val">{{ partidas.paginator.count }}</div>
             <div class="stat-lbl">Partidas jogadas</div>
         </div>
         <div class="stat-card">
@@ -154,7 +69,7 @@
         </div>
     </div>
 
-    <!-- Filtro por baralho -->
+    <!-- Filtro por baralho (client-side, aplica à página atual) -->
     <div class="filter-bar">
         <label for="filtro-baralho">🃏 Filtrar por baralho:</label>
         <select id="filtro-baralho" onchange="filtrar()">
@@ -166,7 +81,7 @@
         </select>
     </div>
 
-    <p class="count-info" id="count-info">{{ partidas|length }} partida{{ partidas|length|pluralize }} registrada{{ partidas|length|pluralize }}s</p>
+    <p class="count-info" id="count-info">{{ partidas|length }} partida{% if partidas|length != 1 %}s{% endif %} nesta página</p>
 
     <div class="table-wrap">
         <table>
@@ -174,7 +89,7 @@
                 <tr>
                     <th>Data</th>
                     <th>Baralho</th>
-                    <th>Equipes & Pontuação</th>
+                    <th>Equipes &amp; Pontuação</th>
                     <th>Vencedor</th>
                 </tr>
             </thead>
@@ -202,7 +117,7 @@
                         </div>
                     </td>
                     <td>
-                        {% if "e" in p.vencedor and p.equipes|length > 1 %}
+                        {% if " e " in p.vencedor and p.equipes|length > 1 %}
                         <span class="empate-badge">🤝 {{ p.vencedor }}</span>
                         {% else %}
                         <span class="vencedor-badge">🏆 {{ p.vencedor }}</span>
@@ -218,6 +133,19 @@
         Nenhuma partida encontrada para este baralho.
     </p>
 
+    <!-- Paginação (#6) -->
+    {% if partidas.has_other_pages %}
+    <div class="pagination">
+        {% if partidas.has_previous %}
+        <a href="?page={{ partidas.previous_page_number }}" class="btn btn-ghost">← Anterior</a>
+        {% endif %}
+        <span>Página {{ partidas.number }} de {{ partidas.paginator.num_pages }}</span>
+        {% if partidas.has_next %}
+        <a href="?page={{ partidas.next_page_number }}" class="btn btn-ghost">Próxima →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
     {% else %}
     <div class="empty">
         <div class="empty-icon">🎲</div>
@@ -226,31 +154,25 @@
         <a href="{% url 'home' %}" class="btn btn-primary" style="margin-top:24px;font-size:15px;padding:13px 28px">▶ Ir Jogar</a>
     </div>
     {% endif %}
-</main>
+{% endblock %}
 
+{% block scripts %}
 <script>
     function filtrar() {
         const val = document.getElementById('filtro-baralho').value;
         const rows = document.querySelectorAll('#historico-tbody tr');
         let visiveis = 0;
-
         rows.forEach(row => {
-            const baralhoId = row.dataset.baralhoId;
-            const match = !val || baralhoId === val;
+            const match = !val || row.dataset.baralhoId === val;
             row.classList.toggle('hidden', !match);
             if (match) visiveis++;
         });
-
         const noResults = document.getElementById('no-results');
         if (noResults) noResults.classList.toggle('hidden', visiveis > 0);
-
         const countInfo = document.getElementById('count-info');
         if (countInfo) {
-            countInfo.textContent = visiveis === 1
-                ? '1 partida encontrada'
-                : `${visiveis} partidas encontradas`;
+            countInfo.textContent = visiveis === 1 ? '1 partida encontrada' : `${visiveis} partidas encontradas`;
         }
     }
 </script>
-</body>
-</html>
+{% endblock %}

@@ -1,3 +1,4 @@
+import json
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -21,6 +22,11 @@ class Partida(models.Model):
 
     class Meta:
         ordering = ['-data']
+
+    @property
+    def equipes(self):
+        """Retorna a lista de equipes desserializada do JSON."""
+        return json.loads(self.equipes_json)
 
     def __str__(self):
         return f"{self.vencedor} — {self.baralho} ({self.data:%d/%m/%Y})"

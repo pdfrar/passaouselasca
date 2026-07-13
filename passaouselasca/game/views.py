@@ -1,4 +1,5 @@
 import json
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -6,6 +7,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.db.models import Count
+from django.core.paginator import Paginator
+from django.core.files import File
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from .models import Baralho, Carta, Partida, CORINGAS_PADRAO
 
 
@@ -44,6 +50,14 @@ def login_view(request):
                 messages.error(request, 'O nome de usuário deve ter pelo menos 3 caracteres.')
                 return render(request, 'login.html', {'tab': 'cadastro'})
 
+            # Valida força da senha usando os AUTH_PASSWORD_VALIDATORS do settings (#2)
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                for err in e.messages:
+                    messages.error(request, err)
+                return render(request, 'login.html', {'tab': 'cadastro'})
+
             user = User.objects.create_user(username=username, password=password)
             login(request, user)
             messages.success(request, f'Bem-vindo, {username}!')
@@ -52,6 +66,8 @@ def login_view(request):
     return render(request, 'login.html', {'tab': 'login'})
 
 
+# Logout exige POST para evitar CSRF via links externos (#1)
+@require_POST
 def logout_view(request):
     logout(request)
     return redirect('login')
@@ -61,7 +77,12 @@ def logout_view(request):
 
 @login_required(login_url='/login/')
 def home(request):
-    meus_baralhos = Baralho.objects.filter(professor=request.user).prefetch_related('cartas')
+    # annotate elimina N+1: num_cartas é calculado em 1 query via JOIN (#4)
+    meus_baralhos = (
+        Baralho.objects
+        .filter(professor=request.user)
+        .annotate(num_cartas=Count('cartas'))
+    )
     return render(request, 'home.html', {'meus_baralhos': meus_baralhos})
 
 
@@ -71,6 +92,14 @@ def home(request):
 def tela_do_jogo(request, baralho_id):
     baralho = get_object_or_404(Baralho, id=baralho_id)
     cartas = baralho.cartas.all()
+
+    # Guard: não deixa iniciar jogo com baralho vazio (#8)
+    if not cartas.exists():
+        messages.error(
+            request,
+            f'O baralho "{baralho.titulo}" está vazio. Adicione pelo menos uma carta antes de jogar.',
+        )
+        return redirect('baralhos')
 
     cartas_json = json.dumps([{
         'pergunta': c.pergunta,
@@ -112,13 +141,27 @@ def copiar_baralho_view(request, baralho_id):
             titulo=f'Cópia — {baralho_original.titulo}',
         )
         for carta in baralho_original.cartas.all():
-            Carta.objects.create(
+            nova_carta = Carta(
                 baralho=novo,
                 pergunta=carta.pergunta,
                 resposta=carta.resposta,
                 pontos=carta.pontos,
-                imagem=carta.imagem,
             )
+            if carta.imagem:
+                # Copia o arquivo fisicamente para evitar dependência do original (#9)
+                try:
+                    with carta.imagem.open('rb') as f:
+                        nova_carta.save()  # salva primeiro para obter ID
+                        nova_carta.imagem.save(
+                            os.path.basename(carta.imagem.name),
+                            File(f),
+                            save=True,
+                        )
+                except Exception:
+                    nova_carta.imagem = None
+                    nova_carta.save()
+            else:
+                nova_carta.save()
         messages.success(request, f'Baralho copiado como "Cópia — {baralho_original.titulo}"!')
     return redirect('baralhos')
 
@@ -127,7 +170,12 @@ def copiar_baralho_view(request, baralho_id):
 
 @login_required(login_url='/login/')
 def baralhos_view(request):
-    meus_baralhos = Baralho.objects.filter(professor=request.user).prefetch_related('cartas')
+    # annotate elimina N+1 (#4)
+    meus_baralhos = (
+        Baralho.objects
+        .filter(professor=request.user)
+        .annotate(num_cartas=Count('cartas'))
+    )
     return render(request, 'baralhos.html', {'meus_baralhos': meus_baralhos})
 
 
@@ -208,49 +256,8 @@ def editar_baralho_view(request, baralho_id):
                 messages.success(request, 'Carta removida.')
             return redirect('editar_baralho', baralho_id=baralho.id)
 
-        # ── Fallback: fluxo legado (edição em lote via pergunta_0…) ──────
-        else:
-            titulo = request.POST.get('titulo', '').strip()
-            if titulo:
-                baralho.titulo = titulo
-                baralho.save()
-
-            ids_mantidos = []
-            i = 0
-            while f'pergunta_{i}' in request.POST:
-                carta_id = request.POST.get(f'carta_id_{i}', '').strip()
-                pergunta = request.POST.get(f'pergunta_{i}', '').strip()
-                resposta = request.POST.get(f'resposta_{i}', '').strip()
-                try:
-                    pontos = int(request.POST.get(f'pontos_{i}', '100'))
-                except ValueError:
-                    pontos = 100
-                imagem = request.FILES.get(f'imagem_{i}')
-
-                if pergunta:
-                    if carta_id:
-                        try:
-                            carta = Carta.objects.get(id=carta_id, baralho=baralho)
-                            carta.pergunta = pergunta
-                            carta.resposta = resposta
-                            carta.pontos = pontos
-                            if imagem:
-                                carta.imagem = imagem
-                            carta.save()
-                            ids_mantidos.append(carta.id)
-                        except Carta.DoesNotExist:
-                            pass
-                    else:
-                        nova = Carta.objects.create(
-                            baralho=baralho, pergunta=pergunta,
-                            resposta=resposta, pontos=pontos, imagem=imagem,
-                        )
-                        ids_mantidos.append(nova.id)
-                i += 1
-
-            baralho.cartas.exclude(id__in=ids_mantidos).delete()
-            messages.success(request, f'Baralho "{baralho.titulo}" atualizado!')
-            return redirect('baralhos')
+        # O bloco legado de edição em lote (else) foi removido (#3).
+        # Todo o fluxo de adição/remoção de cartas passa pelo AJAX.
 
     cartas = baralho.cartas.all()
     return render(request, 'criarBaralho.html', {'baralho': baralho, 'cartas': cartas})
@@ -319,7 +326,7 @@ def galeria_view(request):
         Baralho.objects
         .filter(publico=True)
         .select_related('professor')
-        .prefetch_related('cartas')
+        .annotate(num_cartas=Count('cartas'))
         .order_by('titulo')
     )
     return render(request, 'galeria.html', {'baralhos': baralhos})
@@ -367,16 +374,19 @@ def salvar_partida_view(request):
 
 @login_required(login_url='/login/')
 def historico_view(request):
-    partidas = (
+    partidas_qs = (
         Partida.objects
         .filter(professor=request.user)
         .select_related('baralho')
     )
     meus_baralhos = Baralho.objects.filter(professor=request.user).order_by('titulo')
 
-    # Injetar equipes como lista Python para o template
-    for p in partidas:
-        p.equipes = json.loads(p.equipes_json)
+    # Paginação: 50 partidas por página (#6)
+    paginator = Paginator(partidas_qs, 50)
+    page_num = request.GET.get('page', 1)
+    partidas = paginator.get_page(page_num)
+
+    # O loop json.loads foi removido — usa-se a property Partida.equipes (#7)
 
     return render(request, 'historico.html', {
         'partidas': partidas,
