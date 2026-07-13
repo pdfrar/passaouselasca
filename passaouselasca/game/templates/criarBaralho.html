@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -9,285 +9,209 @@
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         :root{
             --bg:#fff7ed;--surface:#fff;
-            --primary:#f97316;--primary-light:rgba(249,115,22,.08);--primary-mid:rgba(249,115,22,.15);
+            --primary:#f97316;--primary-light:rgba(249,115,22,.08);--primary-mid:rgba(249,115,22,.18);
             --secondary:#22c55e;
             --text:#1e1b4b;--text-muted:#6b7280;--border:#e5e7eb;
             --danger:#ef4444;--danger-light:rgba(239,68,68,.08);
-            --radius:16px;--shadow:0 8px 30px rgba(249,115,22,.12);
+            --radius:16px;--nav:64px;
         }
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:120px}
-
-        /* NAV */
+        html,body{height:100%;overflow:hidden;font-family:'Inter',sans-serif;color:var(--text)}
         nav{
-            position:sticky;top:0;z-index:100;
+            position:fixed;top:0;left:0;right:0;z-index:100;
             display:flex;align-items:center;justify-content:space-between;
-            padding:0 40px;height:72px;
-            background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
-            border-bottom:1px solid var(--border)
+            padding:0 28px;height:var(--nav);
+            background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
+            border-bottom:1px solid var(--border);
         }
-        .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
-        .nav-logo-icon{width:38px;height:38px;background:var(--primary);border-radius:10px;
-            display:flex;align-items:center;justify-content:center;font-size:18px}
-        .nav-logo strong{font-size:18px;font-weight:800;color:var(--primary)}
-        .nav-right{display:flex;align-items:center;gap:12px}
-
-        .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:10px;
-            font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;
-            text-decoration:none;border:none;transition:all .2s}
+        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+        .nav-logo-icon{width:34px;height:34px;background:var(--primary);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+        .nav-logo strong{font-size:17px;font-weight:800;color:var(--primary)}
+        .nav-center{font-size:13px;font-weight:600;color:var(--text-muted);background:var(--bg);padding:6px 14px;border-radius:999px;border:1px solid var(--border)}
+        .nav-right{display:flex;align-items:center;gap:8px}
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;border:none;transition:all .2s}
         .btn-ghost{background:transparent;color:var(--text-muted);border:1.5px solid var(--border)}
         .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
-        .btn-primary{background:var(--primary);color:white;box-shadow:0 4px 14px rgba(249,115,22,.3)}
-        .btn-primary:hover{opacity:.9;transform:translateY(-2px)}
-        .btn-secondary{background:var(--secondary);color:white;box-shadow:0 4px 14px rgba(34,197,94,.3)}
-        .btn-secondary:hover{opacity:.9;transform:translateY(-2px)}
-
-        main{max-width:860px;margin:40px auto;padding:0 24px}
-
-        /* Mensagens */
-        .msg{padding:14px 20px;border-radius:12px;font-size:15px;font-weight:600;margin-bottom:24px;display:flex;align-items:center;gap:10px}
-        .msg-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#15803d}
-        .msg-error{background:var(--danger-light);border:1px solid rgba(239,68,68,.3);color:var(--danger)}
-
-        /* Form Titulo */
-        .title-section{background:var(--surface);padding:32px;border-radius:var(--radius);
-            border:1px solid var(--border);margin-bottom:32px;box-shadow:0 4px 20px rgba(0,0,0,.03)}
-        .input-group{display:flex;flex-direction:column;gap:10px}
-        .input-label{font-size:15px;font-weight:700;color:var(--text)}
-        .input-title{
-            font-size:24px;font-weight:800;padding:16px 20px;border-radius:12px;
-            border:2px solid var(--border);background:var(--bg);color:var(--text);
-            font-family:'Inter',sans-serif;transition:all .2s;outline:none
-        }
-        .input-title:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 4px var(--primary-light)}
-
-        /* Painel Nova Carta (Form mais limpo) */
-        .add-card-panel{
-            background:var(--surface);padding:36px;border-radius:var(--radius);
-            border:2px dashed var(--border);margin-bottom:40px;
-            transition:border-color .2s
-        }
-        .add-card-panel:focus-within{border-color:var(--primary);border-style:solid}
-        .add-panel-title{font-size:20px;font-weight:800;margin-bottom:24px;display:flex;align-items:center;gap:10px}
-        
-        .form-grid{display:grid;grid-template-columns:1fr;gap:20px}
-        .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-        
-        .field-group{display:flex;flex-direction:column;gap:8px}
-        .field-label{font-size:14px;font-weight:700;color:var(--text)}
-        .field-hint{font-size:13px;font-weight:500;color:var(--text-muted);margin-bottom:4px}
-        
-        textarea, input[type="number"], input[type="file"]{
-            padding:14px 16px;border-radius:10px;border:1.5px solid var(--border);
-            background:var(--bg);font-family:'Inter',sans-serif;font-size:15px;
-            color:var(--text);outline:none;transition:all .2s
-        }
-        textarea{resize:vertical;min-height:90px}
-        textarea:focus, input[type="number"]:focus{border-color:var(--primary);background:white}
-        
-        .file-upload{
-            position:relative;display:flex;align-items:center;justify-content:center;
-            border:1.5px dashed var(--border);border-radius:10px;background:var(--bg);
-            padding:16px;cursor:pointer;transition:all .2s;text-align:center
-        }
+        .workspace{display:flex;height:calc(100vh - var(--nav));margin-top:var(--nav)}
+        .left-panel{width:340px;min-width:300px;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--border)}
+        .left-inner{flex:1;overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;gap:13px}
+        .left-inner::-webkit-scrollbar{width:3px}
+        .left-inner::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+        .section-label{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted)}
+        .divider{height:1px;background:var(--border)}
+        .input-title{width:100%;font-size:17px;font-weight:800;padding:11px 13px;border-radius:9px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;transition:all .2s;outline:none}
+        .input-title:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px var(--primary-light)}
+        .field-group{display:flex;flex-direction:column;gap:5px}
+        .field-label{font-size:12px;font-weight:700;color:var(--text)}
+        textarea,input[type="number"]{width:100%;padding:9px 11px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;transition:all .2s}
+        textarea{resize:none}
+        textarea:focus,input[type="number"]:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px var(--primary-light)}
+        .pts-row{display:flex;gap:5px;flex-wrap:wrap}
+        .pts-chip{padding:5px 12px;border-radius:999px;border:1.5px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;cursor:pointer;color:var(--text-muted);transition:all .15s;user-select:none}
+        .pts-chip:hover,.pts-chip.active{background:var(--primary-mid);border-color:var(--primary);color:var(--primary)}
+        .file-upload{position:relative;display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--border);border-radius:8px;background:var(--bg);padding:10px;cursor:pointer;transition:all .2s;text-align:center;min-height:50px}
         .file-upload:hover{border-color:var(--primary);background:var(--primary-light)}
-        .file-upload input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
-        .file-upload-text{font-size:14px;font-weight:600;color:var(--text-muted)}
+        .file-upload input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+        .file-upload-text{font-size:12px;font-weight:600;color:var(--text-muted);pointer-events:none}
         .file-upload-text strong{color:var(--primary)}
-
-        /* Lista de Cartas Existentes */
-        .cards-list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-        .cards-list-header h2{font-size:24px;font-weight:800}
-        .cards-count{background:var(--primary-light);color:var(--primary);padding:6px 14px;border-radius:999px;font-size:14px;font-weight:700}
-        
-        .cards-grid{display:flex;flex-direction:column;gap:16px}
-        
-        .list-card{
-            display:flex;background:var(--surface);border:1px solid var(--border);
-            border-radius:12px;overflow:hidden;transition:all .2s
-        }
-        .list-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.04)}
-        
-        .list-card-img{width:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border)}
-        .list-card-img img{width:100%;height:100%;object-fit:cover}
-        .list-card-empty{font-size:32px;color:var(--border)}
-        
-        .list-card-content{flex:1;padding:20px;display:flex;flex-direction:column;justify-content:center}
-        .list-card-q{font-size:16px;font-weight:700;margin-bottom:6px;line-height:1.4}
-        .list-card-a{font-size:14px;color:var(--text-muted);display:flex;align-items:center;gap:6px}
-        .list-card-a::before{content:'R:';font-weight:700;color:var(--secondary)}
-        
-        .list-card-actions{
-            display:flex;flex-direction:column;justify-content:center;gap:8px;
-            padding:20px;background:var(--bg);border-left:1px solid var(--border)
-        }
-        .list-pts{font-size:14px;font-weight:800;color:var(--primary);text-align:center;margin-bottom:8px}
-        .btn-icon{
-            padding:8px;border-radius:8px;border:1px solid var(--border);
-            background:white;color:var(--text-muted);cursor:pointer;
-            display:flex;align-items:center;justify-content:center;transition:all .2s
-        }
-        .btn-icon:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-light)}
-
-        /* Fixed Bottom Bar */
-        .bottom-bar{
-            position:fixed;bottom:0;left:0;right:0;z-index:90;
-            background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
-            border-top:1px solid var(--border);padding:20px 40px;
-            display:flex;justify-content:flex-end;box-shadow:0 -4px 24px rgba(0,0,0,.05)
-        }
+        .add-btn-full{width:100%;padding:12px;border-radius:9px;background:var(--primary);color:white;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 14px rgba(249,115,22,.28);transition:all .2s}
+        .add-btn-full:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
+        .add-btn-full:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        #add-card-feedback{display:none;padding:8px 12px;border-radius:8px;font-weight:600;font-size:12px;text-align:center}
+        .left-footer{padding:14px 18px;border-top:1px solid var(--border);background:white}
+        .save-deck-btn{width:100%;padding:12px;border-radius:9px;background:var(--secondary);color:white;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 14px rgba(34,197,94,.28);transition:all .2s}
+        .save-deck-btn:hover{opacity:.9;transform:translateY(-1px)}
+        .right-panel{flex:1;overflow-y:auto;background:var(--bg);padding:24px 24px 40px}
+        .right-panel::-webkit-scrollbar{width:5px}
+        .right-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px}
+        .mural-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+        .mural-title{font-size:20px;font-weight:800}
+        .cards-count{background:var(--primary-light);color:var(--primary);padding:4px 13px;border-radius:999px;font-size:12px;font-weight:700}
+        .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;align-content:start}
+        .card-item{background:white;border-radius:14px;border:1px solid var(--border);box-shadow:0 3px 12px rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden;transition:all .25s;position:relative}
+        .card-item:hover{transform:translateY(-5px) rotate(.3deg);box-shadow:0 14px 34px rgba(249,115,22,.15);border-color:var(--primary)}
+        .card-img{width:100%;height:108px;background:linear-gradient(135deg,#fff7ed,#ffedd5);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);overflow:hidden;font-size:32px;color:#fed7aa}
+        .card-img img{width:100%;height:100%;object-fit:cover}
+        .card-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:7px}
+        .card-question{font-size:13px;font-weight:700;line-height:1.45;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+        .card-answer{font-size:12px;color:var(--text-muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding-left:7px;border-left:3px solid var(--secondary)}
+        .card-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border-top:1px solid var(--border)}
+        .card-pts{font-size:12px;font-weight:800;color:var(--primary);background:var(--primary-light);padding:3px 9px;border-radius:999px}
+        .card-del{padding:5px;border-radius:7px;border:1px solid var(--border);background:white;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+        .card-del:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-light)}
+        .card-del:disabled{opacity:.4;cursor:not-allowed}
+        .card-num{position:absolute;top:7px;left:9px;font-size:10px;font-weight:800;color:rgba(255,255,255,.95);background:rgba(0,0,0,.25);padding:2px 7px;border-radius:999px}
+        .empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;text-align:center;border:2px dashed var(--border);border-radius:var(--radius)}
+        .no-deck-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px}
+        @keyframes slideIn{from{opacity:0;transform:translateY(-12px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
     </style>
 </head>
 <body>
-
 <nav>
     <a href="{% url 'baralhos' %}" class="nav-logo">
         <div class="nav-logo-icon">🃏</div>
         <strong>Passa ou Se Lasca</strong>
     </a>
+    <span class="nav-center">{% if baralho %}✏️ {{ baralho.titulo }}{% else %}✨ Novo Baralho{% endif %}</span>
     <div class="nav-right">
         <a href="{% url 'baralhos' %}" class="btn btn-ghost">← Voltar</a>
     </div>
 </nav>
-
-<main>
-    {% if messages %}{% for msg in messages %}
-        <div class="msg {% if msg.level == 25 %}msg-success{% else %}msg-error{% endif %}">
-            {% if msg.level == 25 %}✅{% else %}⚠️{% endif %} {{ msg }}
-        </div>
-    {% endfor %}{% endif %}
-
-    <!-- Formulário do Baralho Principal -->
-    <form method="POST" enctype="multipart/form-data" id="deck-form">
-        {% csrf_token %}
-        <input type="hidden" name="baralho_id" value="{{ baralho.id|default:'' }}">
-        <input type="hidden" name="acao" value="salvar_baralho">
-
-        <div class="title-section">
-            <div class="input-group">
-                <label for="titulo" class="input-label">Título do Baralho</label>
-                <input type="text" id="titulo" name="titulo" class="input-title" 
-                       placeholder="Ex: Revisão de História (Séc. XX)" 
-                       value="{{ baralho.titulo|default:'' }}" required>
+<div class="workspace">
+    <div class="left-panel">
+        <div class="left-inner">
+            {% if messages %}{% for msg in messages %}
+            <div style="display:block;padding:8px 12px;border-radius:8px;font-weight:600;font-size:12px;text-align:center;background:{% if msg.level == 25 %}rgba(34,197,94,.1){% else %}rgba(239,68,68,.1){% endif %};color:{% if msg.level == 25 %}#15803d{% else %}#ef4444{% endif %};border:1px solid {% if msg.level == 25 %}rgba(34,197,94,.3){% else %}rgba(239,68,68,.3){% endif %}">
+                {% if msg.level == 25 %}✅{% else %}⚠️{% endif %} {{ msg }}
             </div>
-        </div>
-    </form>
-
-    {% if baralho %}
-    <!-- Painel de Adicionar Carta -->
-    <div class="add-card-panel">
-        <div class="add-panel-title">✨ Adicionar Nova Carta</div>
-        
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="hidden" name="acao" value="adicionar_carta">
-            
-            <div class="form-grid">
+            {% endfor %}{% endif %}
+            <form method="POST" id="deck-form">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="salvar_baralho">
                 <div class="field-group">
-                    <label class="field-label" for="pergunta">Pergunta</label>
-                    <div class="field-hint">A pergunta que será feita à equipe.</div>
-                    <textarea id="pergunta" name="pergunta" required placeholder="Digite a pergunta aqui..."></textarea>
+                    <span class="section-label">Título do baralho</span>
+                    <input type="text" id="titulo" name="titulo" class="input-title" placeholder="Ex: Revisão — História Séc. XX" value="{{ baralho.titulo|default:'' }}" required>
                 </div>
-                
-                <div class="field-group">
-                    <label class="field-label" for="resposta">Resposta Esperada</label>
-                    <div class="field-hint">A resposta correta para pontuar.</div>
-                    <textarea id="resposta" name="resposta" required placeholder="Digite a resposta exata ou tópicos principais..."></textarea>
-                </div>
-                
-                <div class="form-row-2">
+            </form>
+            {% if baralho %}
+            <div class="divider"></div>
+            <form id="add-card-form" data-url="{% url 'adicionar_carta' baralho.id %}" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div style="display:flex;flex-direction:column;gap:12px">
+                    <span class="section-label">✨ Nova Carta</span>
                     <div class="field-group">
-                        <label class="field-label" for="pontos">Pontuação</label>
-                        <div class="field-hint">Quantos pontos essa carta vale.</div>
-                        <input type="number" id="pontos" name="pontos" value="100" min="5" step="5" required>
+                        <label class="field-label" for="pergunta">Pergunta</label>
+                        <textarea id="pergunta" name="pergunta" rows="3" placeholder="Digite a pergunta..."></textarea>
                     </div>
-                    
                     <div class="field-group">
-                        <label class="field-label">Imagem (Opcional)</label>
-                        <div class="field-hint">Adicione um contexto visual.</div>
+                        <label class="field-label" for="resposta">Resposta</label>
+                        <textarea id="resposta" name="resposta" rows="2" placeholder="Resposta esperada..."></textarea>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Pontuação</label>
+                        <div class="pts-row" id="pts-chips">
+                            <div class="pts-chip" data-val="50">50</div>
+                            <div class="pts-chip active" data-val="100">100</div>
+                            <div class="pts-chip" data-val="150">150</div>
+                            <div class="pts-chip" data-val="200">200</div>
+                            <div class="pts-chip" data-val="250">250</div>
+                        </div>
+                        <input type="number" id="pontos" name="pontos" value="100" min="5" step="5" style="margin-top:5px">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Imagem <span style="font-weight:500;color:var(--text-muted)">(opcional)</span></label>
                         <div class="file-upload">
                             <input type="file" name="imagem" accept="image/*" onchange="updName(this)">
-                            <div class="file-upload-text" id="file-name">📎 <strong>Clique</strong> ou arraste uma imagem</div>
+                            <div class="file-upload-text" id="file-name">📎 <strong>Clique</strong> para anexar</div>
                         </div>
                     </div>
+                    <div id="add-card-feedback"></div>
+                    <button type="submit" id="add-card-btn" class="add-btn-full">➕ Adicionar Carta</button>
                 </div>
-                
-                <button type="submit" class="btn btn-primary" style="margin-top:10px;justify-content:center;padding:16px;font-size:16px">
-                    ➕ Salvar Carta no Baralho
-                </button>
+            </form>
+            {% else %}
+            <div style="text-align:center;padding:28px 12px;border:2px dashed var(--border);border-radius:12px">
+                <div style="font-size:32px;margin-bottom:8px">☝️</div>
+                <p style="font-size:13px;font-weight:600;color:var(--text-muted)">Salve o título para começar a adicionar cartas.</p>
             </div>
-        </form>
+            {% endif %}
+        </div>
+        <div class="left-footer">
+            <button class="save-deck-btn" onclick="document.getElementById('deck-form').submit()">
+                {% if baralho %}💾 Salvar e Concluir{% else %}✅ Criar Baralho{% endif %}
+            </button>
+        </div>
     </div>
-
-    <!-- Lista de Cartas -->
-    <div class="cards-list-header">
-        <h2>Cartas Deste Baralho</h2>
-        <div class="cards-count">{{ cartas.count }} carta{% if cartas.count != 1 %}s{% endif %} adicionadas</div>
-    </div>
-
-    <div class="cards-grid">
-        {% for carta in cartas %}
-        <div class="list-card">
-            <div class="list-card-img">
-                {% if carta.imagem %}
-                    <img src="{{ carta.imagem.url }}" alt="Img">
-                {% else %}
-                    <div class="list-card-empty">🃏</div>
-                {% endif %}
-            </div>
-            
-            <div class="list-card-content">
-                <div class="list-card-q">{{ carta.pergunta }}</div>
-                <div class="list-card-a">{{ carta.resposta }}</div>
-            </div>
-            
-            <div class="list-card-actions">
-                <div class="list-pts">{{ carta.pontos }} pts</div>
-                <form method="POST" onsubmit="return confirm('Excluir esta carta definitivamente?');">
-                    {% csrf_token %}
-                    <input type="hidden" name="acao" value="deletar_carta">
-                    <input type="hidden" name="carta_id" value="{{ carta.id }}">
-                    <button type="submit" class="btn-icon" title="Excluir Carta">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+    <div class="right-panel">
+        {% if baralho %}
+        <div class="mural-header">
+            <h1 class="mural-title">🃏 Mural de Cartas</h1>
+            <div class="cards-count" id="cards-count" data-count="{{ cartas.count }}">{{ cartas.count }} carta{% if cartas.count != 1 %}s{% endif %}</div>
+        </div>
+        <div class="cards-grid" id="cards-grid">
+            {% for carta in cartas %}
+            <div class="card-item" id="card-{{ carta.id }}">
+                <div class="card-num">#{{ forloop.counter }}</div>
+                <div class="card-img">{% if carta.imagem %}<img src="{{ carta.imagem.url }}" alt="">{% else %}🃏{% endif %}</div>
+                <div class="card-body">
+                    <div class="card-question">{{ carta.pergunta }}</div>
+                    <div class="card-answer">{{ carta.resposta }}</div>
+                </div>
+                <div class="card-footer">
+                    <span class="card-pts">{{ carta.pontos }} pts</span>
+                    <button class="card-del" title="Excluir" onclick="deletarCarta('{% url 'deletar_carta' baralho.id carta.id %}', {{ carta.id }}, this)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     </button>
-                </form>
+                </div>
             </div>
+            {% empty %}
+            <div class="empty-state" id="empty-state">
+                <div style="font-size:52px;margin-bottom:14px">📭</div>
+                <div style="font-size:17px;font-weight:800;margin-bottom:8px">Nenhuma carta ainda</div>
+                <div style="font-size:14px;color:var(--text-muted)">Use o painel à esquerda para criar a primeira!</div>
+            </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div style="text-align:center;padding:60px 20px;border:2px dashed var(--border);border-radius:var(--radius)">
-            <div style="font-size:40px;margin-bottom:12px">📭</div>
-            <p style="font-size:16px;font-weight:600;color:var(--text-muted)">Nenhuma carta adicionada ainda.<br>Use o painel acima para criar a primeira!</p>
+        {% else %}
+        <div class="no-deck-state">
+            <div style="font-size:68px;margin-bottom:20px">🃏</div>
+            <h2 style="font-size:24px;font-weight:800;margin-bottom:10px">Mural de Cartas</h2>
+            <p style="font-size:15px;color:var(--text-muted);max-width:340px">As cartas aparecerão aqui assim que você criar o baralho.</p>
         </div>
-        {% endfor %}
+        {% endif %}
     </div>
-
-    {% else %}
-    <div style="text-align:center;padding:80px 20px">
-        <div style="font-size:64px;margin-bottom:24px">☝️</div>
-        <h3 style="font-size:24px;font-weight:800;margin-bottom:12px">Dê um nome ao baralho</h3>
-        <p style="color:var(--text-muted);font-size:16px;max-width:400px;margin:0 auto">
-            Primeiro salve o título do seu novo baralho para poder adicionar cartas nele.
-        </p>
-    </div>
-    {% endif %}
-</main>
-
-<div class="bottom-bar">
-    <button type="button" class="btn btn-secondary" onclick="document.getElementById('deck-form').submit()" style="padding:14px 28px;font-size:16px">
-        {% if baralho %}💾 Salvar e Concluir{% else %}✅ Iniciar Baralho{% endif %}
-    </button>
 </div>
-
 <script>
-    function updName(input){
-        const txt = document.getElementById('file-name');
-        if(input.files && input.files[0]){
-            txt.textContent = '📎 ' + input.files[0].name;
-            txt.style.color = 'var(--text)';
-        }else{
-            txt.innerHTML = '📎 <strong>Clique</strong> ou arraste uma imagem';
-            txt.style.color = 'var(--text-muted)';
-        }
-    }
+    function getCsrf(){const m=document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith('csrftoken='));return m?m.split('=')[1]:'';}
+    function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+    function updName(input){const txt=document.getElementById('file-name');if(input.files&&input.files[0]){txt.textContent='📎 '+input.files[0].name;txt.style.color='var(--text)';}else{txt.innerHTML='📎 <strong>Clique</strong> para anexar';txt.style.color='var(--text-muted)';}}
+    document.querySelectorAll('.pts-chip').forEach(chip=>{chip.addEventListener('click',()=>{document.querySelectorAll('.pts-chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');document.getElementById('pontos').value=chip.dataset.val;});});
+    document.getElementById('pontos')?.addEventListener('input',e=>{document.querySelectorAll('.pts-chip').forEach(c=>c.classList.toggle('active',c.dataset.val===e.target.value));});
+    function updateCount(delta){const el=document.getElementById('cards-count');if(!el)return;const next=(parseInt(el.dataset.count)||0)+delta;el.dataset.count=next;el.textContent=next+' carta'+(next!==1?'s':'');}
+    function showFeedback(msg,type){const el=document.getElementById('add-card-feedback');if(!el)return;el.textContent=msg;el.style.cssText='display:block;padding:8px 12px;border-radius:8px;font-weight:600;font-size:12px;text-align:center;margin-top:2px;background:'+(type==='success'?'rgba(34,197,94,.12)':'rgba(239,68,68,.12)')+';color:'+(type==='success'?'#15803d':'#ef4444')+';border:1px solid '+(type==='success'?'rgba(34,197,94,.3)':'rgba(239,68,68,.3)');clearTimeout(el._t);el._t=setTimeout(()=>{el.style.display='none';},3500);}
+    const addForm=document.getElementById('add-card-form');
+    function injectCard(c){const grid=document.getElementById('cards-grid');document.getElementById('empty-state')?.remove();const imgHtml=c.imagem_url?`<img src="${c.imagem_url}" alt="">`:'🃏';const delUrl=addForm.dataset.url.replace('adicionar-carta/',`deletar-carta/${c.id}/`);const num=document.querySelectorAll('.card-item').length+1;const div=document.createElement('div');div.className='card-item';div.id='card-'+c.id;div.style.animation='slideIn .3s ease';div.innerHTML=`<div class="card-num">#${num}</div><div class="card-img">${imgHtml}</div><div class="card-body"><div class="card-question">${escHtml(c.pergunta)}</div><div class="card-answer">${escHtml(c.resposta)}</div></div><div class="card-footer"><span class="card-pts">${c.pontos} pts</span><button class="card-del" title="Excluir" onclick="deletarCarta('${delUrl}',${c.id},this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>`;grid.prepend(div);}
+    if(addForm){addForm.addEventListener('submit',async e=>{e.preventDefault();const btn=document.getElementById('add-card-btn');const pergunta=addForm.querySelector('[name=pergunta]').value.trim();if(!pergunta){showFeedback('⚠️ A pergunta não pode estar vazia.','error');return;}btn.disabled=true;btn.textContent='⏳ Salvando...';try{const res=await fetch(addForm.dataset.url,{method:'POST',headers:{'X-CSRFToken':getCsrf()},body:new FormData(addForm)});const data=await res.json();if(data.ok){injectCard(data.carta);updateCount(+1);addForm.reset();document.getElementById('pontos').value=100;document.querySelectorAll('.pts-chip').forEach(c=>c.classList.toggle('active',c.dataset.val==='100'));document.getElementById('file-name').innerHTML='📎 <strong>Clique</strong> para anexar';showFeedback('✅ Carta adicionada!','success');document.querySelector('.right-panel').scrollTo({top:0,behavior:'smooth'});}else{showFeedback('⚠️ '+(data.erro||'Erro.'),'error');}}catch{showFeedback('⚠️ Erro de conexão.','error');}finally{btn.disabled=false;btn.textContent='➕ Adicionar Carta';}});}
+    async function deletarCarta(url,cartaId,btn){if(!confirm('Excluir esta carta definitivamente?'))return;btn.disabled=true;try{const res=await fetch(url,{method:'POST',headers:{'X-CSRFToken':getCsrf()}});const data=await res.json();if(data.ok){const card=document.getElementById('card-'+cartaId);if(card){card.style.transition='opacity .22s, transform .22s';card.style.opacity='0';card.style.transform='scale(.88)';setTimeout(()=>{card.remove();updateCount(-1);document.querySelectorAll('.card-num').forEach((n,i)=>n.textContent='#'+(i+1));if(!document.querySelector('.card-item')){document.getElementById('cards-grid').innerHTML='<div class="empty-state" id="empty-state"><div style="font-size:52px;margin-bottom:14px">📭</div><div style="font-size:17px;font-weight:800;margin-bottom:8px">Nenhuma carta ainda</div><div style="font-size:14px;color:var(--text-muted)">Use o painel à esquerda para criar a primeira!</div></div>';}},250);}}}catch{btn.disabled=false;}}
 </script>
 </body>
 </html>

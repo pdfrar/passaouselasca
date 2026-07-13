@@ -166,48 +166,139 @@ def editar_baralho_view(request, baralho_id):
     baralho = get_object_or_404(Baralho, id=baralho_id, professor=request.user)
 
     if request.method == 'POST':
-        titulo = request.POST.get('titulo', '').strip()
-        if titulo:
-            baralho.titulo = titulo
-            baralho.save()
+        acao = request.POST.get('acao', '')
 
-        ids_mantidos = []
-        i = 0
-        while f'pergunta_{i}' in request.POST:
-            carta_id = request.POST.get(f'carta_id_{i}', '').strip()
-            pergunta = request.POST.get(f'pergunta_{i}', '').strip()
-            resposta = request.POST.get(f'resposta_{i}', '').strip()
+        # ── Salvar título do baralho ──────────────────────────────────────
+        if acao == 'salvar_baralho':
+            titulo = request.POST.get('titulo', '').strip()
+            if titulo:
+                baralho.titulo = titulo
+                baralho.save()
+                messages.success(request, f'Baralho "{baralho.titulo}" atualizado!')
+            return redirect('baralhos')
+
+        # ── Adicionar uma nova carta ───────────────────────────────────────
+        elif acao == 'adicionar_carta':
+            pergunta = request.POST.get('pergunta', '').strip()
+            resposta = request.POST.get('resposta', '').strip()
             try:
-                pontos = int(request.POST.get(f'pontos_{i}', '100'))
+                pontos = int(request.POST.get('pontos', '100'))
             except ValueError:
                 pontos = 100
-            imagem = request.FILES.get(f'imagem_{i}')
+            imagem = request.FILES.get('imagem')
 
             if pergunta:
-                if carta_id:
-                    try:
-                        carta = Carta.objects.get(id=carta_id, baralho=baralho)
-                        carta.pergunta = pergunta
-                        carta.resposta = resposta
-                        carta.pontos = pontos
-                        if imagem:
-                            carta.imagem = imagem
-                        carta.save()
-                        ids_mantidos.append(carta.id)
-                    except Carta.DoesNotExist:
-                        pass
-                else:
-                    nova = Carta.objects.create(baralho=baralho, pergunta=pergunta,
-                                                resposta=resposta, pontos=pontos, imagem=imagem)
-                    ids_mantidos.append(nova.id)
-            i += 1
+                Carta.objects.create(
+                    baralho=baralho,
+                    pergunta=pergunta,
+                    resposta=resposta,
+                    pontos=pontos,
+                    imagem=imagem,
+                )
+                messages.success(request, 'Carta adicionada com sucesso!')
+            else:
+                messages.error(request, 'A pergunta não pode estar vazia.')
+            return redirect('editar_baralho', baralho_id=baralho.id)
 
-        baralho.cartas.exclude(id__in=ids_mantidos).delete()
-        messages.success(request, f'Baralho "{baralho.titulo}" atualizado!')
-        return redirect('baralhos')
+        # ── Deletar uma carta específica ───────────────────────────────────
+        elif acao == 'deletar_carta':
+            carta_id = request.POST.get('carta_id', '').strip()
+            if carta_id:
+                Carta.objects.filter(id=carta_id, baralho=baralho).delete()
+                messages.success(request, 'Carta removida.')
+            return redirect('editar_baralho', baralho_id=baralho.id)
+
+        # ── Fallback: fluxo legado (edição em lote via pergunta_0…) ──────
+        else:
+            titulo = request.POST.get('titulo', '').strip()
+            if titulo:
+                baralho.titulo = titulo
+                baralho.save()
+
+            ids_mantidos = []
+            i = 0
+            while f'pergunta_{i}' in request.POST:
+                carta_id = request.POST.get(f'carta_id_{i}', '').strip()
+                pergunta = request.POST.get(f'pergunta_{i}', '').strip()
+                resposta = request.POST.get(f'resposta_{i}', '').strip()
+                try:
+                    pontos = int(request.POST.get(f'pontos_{i}', '100'))
+                except ValueError:
+                    pontos = 100
+                imagem = request.FILES.get(f'imagem_{i}')
+
+                if pergunta:
+                    if carta_id:
+                        try:
+                            carta = Carta.objects.get(id=carta_id, baralho=baralho)
+                            carta.pergunta = pergunta
+                            carta.resposta = resposta
+                            carta.pontos = pontos
+                            if imagem:
+                                carta.imagem = imagem
+                            carta.save()
+                            ids_mantidos.append(carta.id)
+                        except Carta.DoesNotExist:
+                            pass
+                    else:
+                        nova = Carta.objects.create(
+                            baralho=baralho, pergunta=pergunta,
+                            resposta=resposta, pontos=pontos, imagem=imagem,
+                        )
+                        ids_mantidos.append(nova.id)
+                i += 1
+
+            baralho.cartas.exclude(id__in=ids_mantidos).delete()
+            messages.success(request, f'Baralho "{baralho.titulo}" atualizado!')
+            return redirect('baralhos')
 
     cartas = baralho.cartas.all()
     return render(request, 'criarBaralho.html', {'baralho': baralho, 'cartas': cartas})
+
+
+# ── CARTA AJAX ───────────────────────────────────────────────────────────
+
+@login_required(login_url='/login/')
+@require_POST
+def adicionar_carta_ajax(request, baralho_id):
+    baralho = get_object_or_404(Baralho, id=baralho_id, professor=request.user)
+    pergunta = request.POST.get('pergunta', '').strip()
+    resposta = request.POST.get('resposta', '').strip()
+    try:
+        pontos = int(request.POST.get('pontos', '100'))
+    except ValueError:
+        pontos = 100
+    imagem = request.FILES.get('imagem')
+
+    if not pergunta:
+        return JsonResponse({'ok': False, 'erro': 'A pergunta não pode estar vazia.'}, status=400)
+
+    carta = Carta.objects.create(
+        baralho=baralho,
+        pergunta=pergunta,
+        resposta=resposta,
+        pontos=pontos,
+        imagem=imagem,
+    )
+    return JsonResponse({
+        'ok': True,
+        'carta': {
+            'id': carta.id,
+            'pergunta': carta.pergunta,
+            'resposta': carta.resposta,
+            'pontos': carta.pontos,
+            'imagem_url': carta.imagem.url if carta.imagem else '',
+        }
+    })
+
+
+@login_required(login_url='/login/')
+@require_POST
+def deletar_carta_ajax(request, baralho_id, carta_id):
+    baralho = get_object_or_404(Baralho, id=baralho_id, professor=request.user)
+    carta = get_object_or_404(Carta, id=carta_id, baralho=baralho)
+    carta.delete()
+    return JsonResponse({'ok': True})
 
 
 @login_required(login_url='/login/')
