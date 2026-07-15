@@ -41,17 +41,8 @@
     main{padding-top:56px}
 {% endblock %}
 
-{% block nav_right %}
-    <div class="nav-avatar">{{ request.user.username|first|upper }}</div>
-    <span class="nav-username">{{ request.user.username }}</span>
-    <a href="{% url 'baralhos' %}" class="btn btn-outline">Meus Baralhos</a>
-    <a href="{% url 'galeria' %}" class="btn btn-outline">🌐 Galeria</a>
-    <a href="{% url 'historico' %}" class="btn btn-outline">📊 Histórico</a>
-    <form method="POST" action="{% url 'logout' %}" class="logout-form">
-        {% csrf_token %}
-        <button type="submit">Sair</button>
-    </form>
-{% endblock %}
+
+
 
 {% block content %}
     <div class="hero">

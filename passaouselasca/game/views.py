@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
 from django.db.models import Count
 from django.core.paginator import Paginator
 from django.core.files import File
@@ -17,6 +18,7 @@ from .models import Baralho, Carta, Partida, CORINGAS_PADRAO
 
 # ── AUTH ──────────────────────────────────────────────────────────────────
 
+@never_cache
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')

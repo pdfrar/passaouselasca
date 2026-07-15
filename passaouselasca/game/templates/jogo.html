@@ -130,8 +130,12 @@
             font-size: 13px
         }
 
-        #step-2 h3::before {
+        #step-1 h3::before {
             content: '2'
+        }
+
+        #step-2 h3::before {
+            content: '3'
         }
 
         /* Seletor de número de equipes */
@@ -168,6 +172,66 @@
             background: white;
             box-shadow: 0 0 0 3px var(--primary-light)
         }
+
+        /* Botão de equipe indisponível */
+        .n-btn.unavail {
+            opacity: .3;
+            cursor: not-allowed;
+            pointer-events: none;
+            border-style: dashed
+        }
+
+        /* ── SELETOR DE MODO ─────────────────────────────────── */
+        .mode-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px
+        }
+
+        .mode-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 20px 12px;
+            border-radius: 14px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all .2s;
+            text-align: center;
+            width: 100%
+        }
+
+        .mode-btn .mode-icon { font-size: 28px }
+
+        .mode-btn .mode-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text)
+        }
+
+        .mode-btn .mode-desc {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            line-height: 1.4
+        }
+
+        .mode-btn:hover {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, .1)
+        }
+
+        .mode-btn.selected {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px var(--primary-light)
+        }
+
+        .mode-btn.selected .mode-title { color: var(--primary) }
 
         /* Inputs de nomes de equipes */
         .team-inputs {
@@ -822,6 +886,24 @@
             </div>
             <div class="setup-deck">Preparando baralho: <span>{{ baralho.titulo }}</span></div>
 
+            <!-- STEP 0: Modo de Jogo -->
+            <div class="setup-section" id="step-0">
+                <h3>Modo de Jogo</h3>
+                <div class="mode-selector">
+                    <button class="mode-btn" id="btn-modo-caos" onclick="selecionarModo('caos')">
+                        <span class="mode-icon">🃏</span>
+                        <span class="mode-title">Modo Caos</span>
+                        <span class="mode-desc">Cartas normais + coringas (~30% coringas)</span>
+                    </button>
+                    <button class="mode-btn" id="btn-modo-normal" onclick="selecionarModo('normal')">
+                        <span class="mode-icon">📋</span>
+                        <span class="mode-title">Modo Normal</span>
+                        <span class="mode-desc">Apenas cartas normais, sem coringas</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 1: Quantidade de equipes -->
             <div class="setup-section" id="step-1">
                 <h3>Quantas equipes vão jogar?</h3>
                 <div class="n-selector">
@@ -947,12 +1029,87 @@
 
         // ── SETUP ──────────────────────────────────────
 
+        // ── MODO DE JOGO ───────────────────────────────
+        let modoJogo = 'caos'; // default
+
+        /**
+         * Retorna { nNormal, nJokers, total } para exibição na UI.
+         * Sem randomness — apenas contagens.
+         */
+        function calcDeckCount(n, modo) {
+            const nReg = CARTAS_REGULARES.length;
+            if (modo === 'normal') {
+                const total = Math.floor(nReg / n) * n;
+                return { nNormal: total, nJokers: 0, total };
+            }
+            // Modo Caos: ~70% normal / ~30% coringas
+            const targetJokers = Math.round(nReg * 30 / 70);
+            const rawTotal = nReg + targetJokers;
+            const total = Math.ceil(rawTotal / n) * n;
+            const nJokers = total - nReg; // always >= 0 (ceil guarantees total >= rawTotal >= nReg)
+            return { nNormal: nReg, nJokers, total };
+        }
+
+        /**
+         * Constrói e retorna o deck embaralhado para a partida.
+         */
+        function buildDeck(n, modo) {
+            const { nNormal, nJokers } = calcDeckCount(n, modo);
+            // Shuffle normal cards first (use all or slice for Normal mode)
+            const shuffledReg = [...CARTAS_REGULARES].sort(() => Math.random() - 0.5);
+            const built = shuffledReg.slice(0, nNormal).map(c => ({ ...c, isCoringa: false }));
+            for (let i = 0; i < nJokers; i++) {
+                const c = CORINGAS_POOL[Math.floor(Math.random() * CORINGAS_POOL.length)];
+                built.push({ ...c, isCoringa: true });
+            }
+            // Fisher-Yates shuffle
+            for (let i = built.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [built[i], built[j]] = [built[j], built[i]];
+            }
+            return built;
+        }
+
+        /**
+         * Atualiza o estado enabled/disabled dos botões de nº de equipes
+         * com base no modo atual (garante pelo menos 2 rodadas por equipe).
+         */
+        function atualizarBotoesEquipe() {
+            for (let n = 2; n <= 6; n++) {
+                const { total } = calcDeckCount(n, modoJogo);
+                const valid = total > 0 && (total / n) >= 2;
+                const btn = document.querySelector(`[data-n="${n}"]`);
+                if (!btn) continue;
+                btn.disabled = !valid;
+                btn.classList.toggle('unavail', !valid);
+                // Se a seleção atual ficou inválida, limpar
+                if (!valid && nEquipesSel === n) {
+                    nEquipesSel = null;
+                    document.getElementById('btn-iniciar').disabled = true;
+                    document.querySelectorAll('.n-btn').forEach(b => b.classList.remove('selected'));
+                    document.getElementById('team-inputs').innerHTML = '';
+                    document.getElementById('qtd-cartas-info').innerHTML = '';
+                }
+            }
+        }
+
+        function selecionarModo(modo) {
+            modoJogo = modo;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('btn-modo-' + modo).classList.add('selected');
+            atualizarBotoesEquipe();
+            // Atualizar painel de info se já há equipes selecionadas
+            if (nEquipesSel) selecionarN(nEquipesSel);
+        }
+
         function selecionarN(n) {
+            const btn = document.querySelector(`[data-n="${n}"]`);
+            if (!btn || btn.disabled) return;
             nEquipesSel = n;
             document.querySelectorAll('.n-btn').forEach(b => b.classList.remove('selected'));
-            document.querySelector(`[data-n="${n}"]`).classList.add('selected');
+            btn.classList.add('selected');
 
-            // Renderizar inputs
+            // Renderizar inputs de nome
             const container = document.getElementById('team-inputs');
             container.innerHTML = '';
             for (let i = 0; i < n; i++) {
@@ -966,19 +1123,26 @@
             }
             document.getElementById('btn-iniciar').disabled = false;
 
-            // Calcular e exibir qtd final de cartas
-            const nReg = CARTAS_REGULARES.length;
-            const resto = nReg % n;
-            const needed = resto === 0 ? 0 : n - resto;
-            const total = nReg + needed;
-
-            document.getElementById('qtd-cartas-info').innerHTML = `
-        <span>ℹ️</span>
-        <div>O jogo terá <strong style="color:var(--text)">${total} cartas</strong> no total.<br></div>
-    `;
+            // Painel de informações
+            const { nNormal, nJokers, total } = calcDeckCount(n, modoJogo);
+            const infoEl = document.getElementById('qtd-cartas-info');
+            if (modoJogo === 'caos') {
+                const pct = total > 0 ? Math.round(nJokers / total * 100) : 0;
+                infoEl.innerHTML = `
+            <span>ℹ️</span>
+            <div>O jogo terá <strong style="color:var(--text)">${total} cartas</strong> — <span style="color:var(--secondary);font-weight:700">${nNormal} normais</span> + <span style="color:var(--gold);font-weight:700">${nJokers} coringas</span> (${pct}%).</div>
+        `;
+            } else {
+                const ignored = CARTAS_REGULARES.length - nNormal;
+                infoEl.innerHTML = `
+            <span>ℹ️</span>
+            <div>O jogo terá <strong style="color:var(--text)">${total} cartas</strong> normais${ignored > 0 ? `, ${ignored} carta${ignored > 1 ? 's' : ''} ignorada${ignored > 1 ? 's' : ''} para divisão igual` : ''}. Sem coringas.</div>
+        `;
+            }
         }
 
-        // Selecionar 2 equipes por padrão
+        // Inicializar: modo Caos por padrão, depois selecionar 2 equipes
+        selecionarModo('caos');
         selecionarN(2);
 
         function iniciarJogo() {
@@ -990,22 +1154,7 @@
                 equipes.push({ nome, pontos: 0 });
             }
 
-            const nReg = CARTAS_REGULARES.length;
-            const resto = nReg % nEquipesSel;
-            const needed = resto === 0 ? 0 : nEquipesSel - resto;
-
-            deck = CARTAS_REGULARES.map(c => ({ ...c, isCoringa: false }));
-
-            for (let i = 0; i < needed; i++) {
-                const c = CORINGAS_POOL[Math.floor(Math.random() * CORINGAS_POOL.length)];
-                const fakePts = (Math.floor(Math.random() * 5) + 1) * 10;
-                deck.push({ ...c, isCoringa: true, fakePts });
-            }
-
-            for (let i = deck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [deck[i], deck[j]] = [deck[j], deck[i]];
-            }
+            deck = buildDeck(nEquipesSel, modoJogo);
 
             renderMesa();
             renderTopbar();
@@ -1040,11 +1189,9 @@
             }
 
             mesa.innerHTML = deck.map((carta, i) => {
-                const displayPts = carta.isCoringa ? carta.fakePts : carta.pontos;
                 return `
             <div class="carta-numero" id="card-${i}" onclick="clicarCarta(${i})">
                 <span>${i + 1}</span>
-                <span class="carta-pts-label">${displayPts} pts</span>
             </div>`;
             }).join('');
         }
