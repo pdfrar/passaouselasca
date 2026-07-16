@@ -66,17 +66,17 @@
         </div>
     </div>
 
-    <!-- Filtro por baralho (client-side, aplica à página atual) -->
-    <div class="filter-bar">
+    <!-- Filtro por baralho (server-side, aplica a todos os registros) -->
+    <form method="GET" class="filter-bar" id="filtro-form">
         <label for="filtro-baralho">🃏 Filtrar por baralho:</label>
-        <select id="filtro-baralho" onchange="filtrar()">
+        <select name="baralho_id" id="filtro-baralho" onchange="this.form.submit()">
             <option value="">Todos os baralhos</option>
             {% for b in meus_baralhos %}
-            <option value="{{ b.id }}">{{ b.titulo }}</option>
+            <option value="{{ b.id }}" {% if request.GET.baralho_id == b.id|stringformat:"s" %}selected{% endif %}>{{ b.titulo }}</option>
             {% endfor %}
-            <option value="__deletado__">Baralho excluído</option>
+            <option value="__deletado__" {% if request.GET.baralho_id == "__deletado__" %}selected{% endif %}>Baralho excluído</option>
         </select>
-    </div>
+    </form>
 
     <p class="count-info" id="count-info">{{ partidas|length }} partida{% if partidas|length != 1 %}s{% endif %} nesta página</p>
 
@@ -126,19 +126,16 @@
         </table>
     </div>
 
-    <p id="no-results" class="hidden" style="text-align:center;padding:48px;color:var(--text-muted);font-size:17px;font-weight:600">
-        Nenhuma partida encontrada para este baralho.
-    </p>
 
     <!-- Paginação (#6) -->
     {% if partidas.has_other_pages %}
     <div class="pagination">
         {% if partidas.has_previous %}
-        <a href="?page={{ partidas.previous_page_number }}" class="btn btn-ghost">← Anterior</a>
+        <a href="?page={{ partidas.previous_page_number }}{% if request.GET.baralho_id %}&baralho_id={{ request.GET.baralho_id }}{% endif %}" class="btn btn-ghost">← Anterior</a>
         {% endif %}
         <span>Página {{ partidas.number }} de {{ partidas.paginator.num_pages }}</span>
         {% if partidas.has_next %}
-        <a href="?page={{ partidas.next_page_number }}" class="btn btn-ghost">Próxima →</a>
+        <a href="?page={{ partidas.next_page_number }}{% if request.GET.baralho_id %}&baralho_id={{ request.GET.baralho_id }}{% endif %}" class="btn btn-ghost">Próxima →</a>
         {% endif %}
     </div>
     {% endif %}
@@ -154,22 +151,4 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-    function filtrar() {
-        const val = document.getElementById('filtro-baralho').value;
-        const rows = document.querySelectorAll('#historico-tbody tr');
-        let visiveis = 0;
-        rows.forEach(row => {
-            const match = !val || row.dataset.baralhoId === val;
-            row.classList.toggle('hidden', !match);
-            if (match) visiveis++;
-        });
-        const noResults = document.getElementById('no-results');
-        if (noResults) noResults.classList.toggle('hidden', visiveis > 0);
-        const countInfo = document.getElementById('count-info');
-        if (countInfo) {
-            countInfo.textContent = visiveis === 1 ? '1 partida encontrada' : `${visiveis} partidas encontradas`;
-        }
-    }
-</script>
 {% endblock %}

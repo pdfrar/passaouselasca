@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -8,12 +9,14 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.core.files import File
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from .models import Baralho, Carta, Partida, CORINGAS_PADRAO
+
+logger = logging.getLogger(__name__)
 
 
 # ── AUTH ──────────────────────────────────────────────────────────────────
@@ -92,7 +95,7 @@ def home(request):
 
 @login_required(login_url='/login/')
 def tela_do_jogo(request, baralho_id):
-    baralho = get_object_or_404(Baralho, id=baralho_id)
+    baralho = get_object_or_404(Baralho, Q(id=baralho_id) & (Q(professor=request.user) | Q(publico=True)))
     cartas = baralho.cartas.all()
 
     # Guard: não deixa iniciar jogo com baralho vazio (#8)
@@ -159,7 +162,8 @@ def copiar_baralho_view(request, baralho_id):
                             File(f),
                             save=True,
                         )
-                except Exception:
+                except Exception as e:
+                    logger.error(f"Erro ao copiar imagem da carta {carta.id}: {e}")
                     nova_carta.imagem = None
                     nova_carta.save()
             else:
@@ -353,8 +357,26 @@ def salvar_partida_view(request):
         baralho_id = data.get('baralho_id')
         equipes = data.get('equipes', [])  # [{nome, pontos}, ...]
 
-        if not equipes:
-            return JsonResponse({'ok': False, 'erro': 'Sem equipes'}, status=400)
+        if not equipes or not isinstance(equipes, list):
+            return JsonResponse({'ok': False, 'erro': 'Sem equipes ou formato inválido'}, status=400)
+
+        for e in equipes:
+            if not isinstance(e, dict):
+                return JsonResponse({'ok': False, 'erro': 'Formato de equipe inválido'}, status=400)
+            
+            nome = str(e.get('nome', '')).strip()
+            if not nome:
+                return JsonResponse({'ok': False, 'erro': 'Nome de equipe não pode ser vazio'}, status=400)
+            if len(nome) > 50:
+                return JsonResponse({'ok': False, 'erro': f'Nome da equipe muito longo: {nome[:10]}...'}, status=400)
+            
+            try:
+                pontos = int(e.get('pontos', 0))
+            except ValueError:
+                return JsonResponse({'ok': False, 'erro': 'Pontos inválidos'}, status=400)
+            
+            e['nome'] = nome
+            e['pontos'] = pontos
 
         # Determinar vencedor
         max_pts = max(e['pontos'] for e in equipes)
@@ -381,6 +403,13 @@ def historico_view(request):
         .filter(professor=request.user)
         .select_related('baralho')
     )
+    baralho_id = request.GET.get('baralho_id')
+    if baralho_id:
+        if baralho_id == '__deletado__':
+            partidas_qs = partidas_qs.filter(baralho__isnull=True)
+        else:
+            partidas_qs = partidas_qs.filter(baralho_id=baralho_id)
+
     meus_baralhos = Baralho.objects.filter(professor=request.user).order_by('titulo')
 
     # Paginação: 50 partidas por página (#6)
